@@ -11,6 +11,7 @@ import { liveRealtimeRoutes } from "./realtime/live-gateway.js";
 import { startH02Server } from "./ingest/h02-server.js";
 import { timelapseRoutes } from "./routes/timelapse.js";
 import { startTimelapseScheduler } from "./capture/timelapse.js";
+import { buildtrackRoutes } from "./buildtrack/routes.js";
 
 const app = Fastify({ logger: true });
 const isProd = process.env.NODE_ENV === "production";
@@ -21,6 +22,7 @@ await app.register(healthRoutes);
 await app.register(demoRealtimeRoutes);
 await app.register(liveRealtimeRoutes);
 await app.register(timelapseRoutes);
+await app.register(buildtrackRoutes);
 
 // En producción (deploy en Render) la API sirve TAMBIÉN el frontend ya compilado
 // (apps/web/dist). Así todo vive en un solo servicio y el WebSocket queda a
@@ -32,7 +34,12 @@ if (isProd) {
   app.setNotFoundHandler((req, reply) => {
     const url = req.raw.url ?? "";
     // Las rutas de API/tiempo real NO caen al SPA: 404 limpio.
-    if (url.startsWith("/realtime") || url.startsWith("/health") || url.startsWith("/timelapse")) {
+    if (
+      url.startsWith("/realtime") ||
+      url.startsWith("/health") ||
+      url.startsWith("/timelapse") ||
+      url.startsWith("/buildtrack")
+    ) {
       reply.code(404).send({ error: "not found" });
       return;
     }

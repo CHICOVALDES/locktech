@@ -4,3 +4,4 @@ export * from "./rental-assignment.js";
 export * from "./geofence.js";
 export * from "./alert-event.js";
 export * from "./telemetry.js";
+export * from "./buildtrack.js";

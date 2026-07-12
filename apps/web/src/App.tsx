@@ -14,8 +14,9 @@ import { LoginScreen } from "./features/auth/LoginScreen.js";
 import { AdminFleet } from "./features/admin/AdminFleet.js";
 import { DeviceManager } from "./features/admin/DeviceManager.js";
 import { UserManager } from "./features/admin/UserManager.js";
+import { ObrasDashboard } from "./features/buildtrack/ObrasDashboard.js";
 
-type View = "flota" | "usuarios" | "dispositivos" | "tracking" | "checkin" | "registros" | "camaras" | "recovery";
+type View = "flota" | "usuarios" | "dispositivos" | "tracking" | "checkin" | "registros" | "camaras" | "recovery" | "obras";
 
 export function App() {
   const { account, login, register, logout } = useAuth();
@@ -61,7 +62,10 @@ export function App() {
   }
 
   function selectHome() {
+    // Entrar a "la Casa" = entrar a BuildTrack (monitoreo de obras). Además deja
+    // visibles las herramientas de la casa (BuildTrack / Cámaras / Recovery).
     setCameraTarget("home");
+    setView("obras");
   }
 
   return (
@@ -93,15 +97,24 @@ export function App() {
           <button className={`app__nav-btn ${view === "registros" ? "app__nav-btn--active" : ""}`} onClick={() => setView("registros")}>
             Registros
           </button>
+          {/* Herramientas de "la Casa" — aparecen al seleccionar la casa en Tracking.
+              La casa es la puerta de entrada a BuildTrack (monitoreo de obras). */}
           {cameraTarget === "home" && (
-            <button className={`app__nav-btn ${view === "camaras" ? "app__nav-btn--active" : ""}`} onClick={() => setView("camaras")}>
-              Cámaras
-            </button>
-          )}
-          {cameraTarget === "home" && (
-            <button className={`app__nav-btn ${view === "recovery" ? "app__nav-btn--active" : ""}`} onClick={() => setView("recovery")}>
-              Recovery
-            </button>
+            <>
+              <span className="app__nav-divider" aria-hidden="true" />
+              <button
+                className={`app__nav-btn app__nav-btn--bt ${view === "obras" ? "app__nav-btn--active" : ""}`}
+                onClick={() => setView("obras")}
+              >
+                BuildTrack
+              </button>
+              <button className={`app__nav-btn ${view === "camaras" ? "app__nav-btn--active" : ""}`} onClick={() => setView("camaras")}>
+                Cámaras
+              </button>
+              <button className={`app__nav-btn ${view === "recovery" ? "app__nav-btn--active" : ""}`} onClick={() => setView("recovery")}>
+                Recovery
+              </button>
+            </>
           )}
         </nav>
         <div className="app__header-right">
@@ -206,6 +219,12 @@ export function App() {
       {view === "recovery" && (
         <main className="app__body app__body--single">
           <RecoveryTimelapse />
+        </main>
+      )}
+
+      {view === "obras" && (
+        <main className="app__body app__body--single">
+          <ObrasDashboard />
         </main>
       )}
     </div>

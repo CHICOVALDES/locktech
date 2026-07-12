@@ -14,6 +14,7 @@ export default defineConfig({
     proxy: {
       "/realtime": { target: "ws://localhost:3000", ws: true, changeOrigin: true },
       "/health": { target: "http://localhost:3000", changeOrigin: true },
+      "/buildtrack": { target: "http://localhost:3000", changeOrigin: true },
       // /timelapse (manifest + jpgs) lo sirve Vite directo desde public/, no hace falta proxy.
     },
   },
