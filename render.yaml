@@ -1,0 +1,16 @@
+# Render Blueprint — despliega Bali Moto Track como UN solo servicio web:
+# la API (Fastify + WebSocket) sirve además el frontend compilado (apps/web/dist).
+# Render corre procesos siempre encendidos y soporta WebSocket, por eso las motos
+# en vivo funcionan (a diferencia de Vercel/serverless).
+services:
+  - type: web
+    name: locktech
+    runtime: node
+    plan: free
+    region: singapore # cerca de Bali/Indonesia
+    buildCommand: corepack enable && pnpm install --no-frozen-lockfile && pnpm build
+    startCommand: node apps/api/dist/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
