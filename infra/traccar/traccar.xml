@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
+
+<properties>
+
+    <entry key='config.default'>./conf/default.xml</entry>
+
+    <entry key='database.driver'>org.postgresql.Driver</entry>
+    <entry key='database.url'>jdbc:postgresql://postgres:5432/traccar</entry>
+    <entry key='database.user'>postgres</entry>
+    <entry key='database.password'>postgres</entry>
+
+    <entry key='web.port'>8082</entry>
+
+    <!-- Puertos de dispositivos: agregar uno por protocolo a medida que se validen -->
+    <entry key='gt06.port'>5023</entry>
+    <entry key='teltonika.port'>5027</entry>
+
+    <!-- Puerto HTTP simple usado por el simulador (Fase 0) para probar el pipeline
+         end-to-end sin hardware real. Los protocolos binarios de arriba todavía
+         necesitan validarse con dispositivos físicos antes de confiar en ellos. -->
+    <entry key='osmand.port'>5055</entry>
+
+    <!-- Solo para desarrollo/simulación: autocrea dispositivos con id desconocido.
+         Desactivar (o quitar) antes de manejar dispositivos reales en producción. -->
+    <entry key='database.registerUnknown'>true</entry>
+
+</properties>
