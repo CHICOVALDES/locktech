@@ -1,0 +1,9 @@
+# Lo que NO se sube a Vercel (build estático). Sin esto la CLI intenta subir
+# node_modules + .git + videos = varios GB y la conexión aborta.
+node_modules
+**/node_modules
+.git
+.turbo
+**/dist
+*.log
+apps/web/public/timelapse
