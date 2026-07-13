@@ -1,0 +1,8 @@
+# No mandar al build lo que se regenera o pesa de más (acelera el deploy).
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+.git
+apps/web/public/timelapse
+*.log
