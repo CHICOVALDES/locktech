@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "framework": null,
+  "build": {
+    "env": {
+      "VITE_STATIC_DEMO": "1"
+    }
+  },
+  "rewrites": [
+    { "source": "/buildtrack/projects", "destination": "/buildtrack-static.json" }
+  ]
+}
