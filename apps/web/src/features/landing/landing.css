@@ -220,6 +220,85 @@
   background: var(--lp-panel);
 }
 
+/* ---- Hero: foto del producto (cámara de marca) ---- */
+.lp-hero__cam {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--lp-line);
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+  background: #0d0d0d;
+}
+.lp-hero__cam img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 440px;
+  object-fit: cover;
+}
+.lp-hero__cam-tag {
+  position: absolute;
+  bottom: 0.9rem;
+  left: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+}
+
+/* ---- Dashboard: tiles de KPI (estilo panel real) ---- */
+.lp-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+.lp-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: linear-gradient(160deg, var(--lp-panel-2), var(--lp-panel));
+  border: 1px solid var(--lp-line);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+}
+.lp-tile__ic {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  font-size: 1.25rem;
+}
+.lp-tile__label {
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+}
+.lp-tile__value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.lp-tile__delta {
+  font-size: 0.68rem;
+  color: var(--lp-good);
+  font-weight: 700;
+}
+
 /* ---- AI detection (live site view + boxes) ---- */
 .lp-detect {
   position: relative;
@@ -285,6 +364,19 @@
   border-radius: 8px;
 }
 .lp-chip b { color: var(--lp-orange); font-variant-numeric: tabular-nums; }
+
+/* Pills de detección de colores (estilo panel de referencia): la etiqueta va en
+   color y el conteo en una cápsula oscura, como cajas de detección de objetos. */
+.lp-chip--det { padding: 0.28rem 0.3rem 0.28rem 0.6rem; border: none; color: #0d0d0d; }
+.lp-chip--det b {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.05rem 0.45rem;
+  border-radius: 6px;
+}
+.lp-chip--worker { background: #35c07a; }
+.lp-chip--truck { background: #3aa0ff; color: #fff; }
+.lp-chip--equip { background: var(--lp-orange); }
 
 /* caja de detección */
 .lp-box {
@@ -596,6 +688,8 @@
   gap: 0.3rem;
 }
 .lp-foot__contact strong { color: var(--lp-text); }
+.lp-foot__name { margin-bottom: 0.2rem; }
+.lp-foot__name span { color: var(--lp-orange); font-size: 0.8rem; }
 
 /* ---- Logo mark ---- */
 .lp-logo {

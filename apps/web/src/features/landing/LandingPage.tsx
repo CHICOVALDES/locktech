@@ -3,34 +3,29 @@ import { useI18n } from "../../i18n/I18nProvider.js";
 import { LanguageSwitcher } from "../../i18n/LanguageSwitcher.js";
 import { landingT } from "./landingTranslations.js";
 
-// Landing de presentación (BUILD TRACKING · Real-Time Construction Intelligence).
-// Se muestra al entrar, ANTES del login. Traducida a los 8 idiomas de la
-// plataforma (usa el mismo `locale` compartido) con su propio diccionario.
+// Landing de presentación (BUILD TRACKING · BT.ai). Se muestra al entrar, ANTES
+// del login. Identidad oficial: dorado #FFC107, negro #111111, Montserrat.
+// Logo "BT.ai" (barras doradas + BT blanco + .ai dorado). Traducida a 8 idiomas.
 
-// Logo oficial BUILD TRACKING: barras ascendentes (crecimiento) + monograma "BT"
-// (B plateada, T dorada), según el manual de marca (dorado #FFC107).
-function LogoMark({ height = 46 }: { height?: number }) {
+// Logo oficial BT.ai: barras ascendentes doradas + "BT" blanco + ".ai" dorado.
+function LogoMark({ height = 40 }: { height?: number }) {
   return (
-    <svg className="lp-logo" height={height} viewBox="0 0 106 48" role="img" aria-label="Build Tracking">
-      <defs>
-        <linearGradient id="btSilver" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#c7c7c7" />
-        </linearGradient>
-      </defs>
-      {/* barras ascendentes */}
-      <rect x="2" y="30" width="7" height="16" rx="1" fill="url(#btSilver)" />
-      <rect x="12" y="21" width="7" height="25" rx="1" fill="url(#btSilver)" />
-      <rect x="22" y="12" width="7" height="34" rx="1" fill="url(#btSilver)" />
-      {/* monograma BT */}
-      <text x="34" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="44" fill="url(#btSilver)">B</text>
-      <text x="72" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="44" fill="#ffc107">T</text>
+    <svg className="lp-logo" height={height} viewBox="0 0 138 48" role="img" aria-label="BT.ai — Build Tracking">
+      <rect x="2" y="30" width="7" height="16" rx="1" fill="#ffc107" />
+      <rect x="12" y="21" width="7" height="25" rx="1" fill="#ffc107" />
+      <rect x="22" y="12" width="7" height="34" rx="1" fill="#ffc107" />
+      <text x="34" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="40" fill="#ffffff">BT</text>
+      <text x="90" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="40" fill="#ffc107">.ai</text>
     </svg>
   );
 }
 
-// Número de teléfono de contacto (único dato por ahora; el resto se agrega luego).
-const CONTACT_PHONE = "+62 812 3675 4965";
+const CONTACT = {
+  phone: "+62 812 3675 4965",
+  ig: "@buildtracking.ai",
+  email: "eduardo@buildtracking.ai",
+  location: "Bali, Indonesia",
+};
 
 export function LandingPage({ onEnter }: { onEnter: () => void }) {
   const { locale } = useI18n();
@@ -51,6 +46,12 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
     { ic: "🕐", k: "f247" },
     { ic: "🛡️", k: "fWeather" },
   ];
+  const tiles = [
+    { ic: "👷", label: "kpiWorkers", value: "47", delta: "▲ 12%" },
+    { ic: "🚚", label: "kpiTrucks", value: "16", delta: "▲ 23%" },
+    { ic: "🚜", label: "kpiEquip", value: "7", delta: "▲ 2" },
+    { ic: "📦", label: "kpiDeliveries", value: "12", delta: "▲ 8%" },
+  ];
   const values = [
     { ic: "🛡️", t: "v1t", d: "v1d" },
     { ic: "💲", t: "v2t", d: "v2d" },
@@ -65,11 +66,8 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         {/* Topbar */}
         <div className="lp__topbar">
           <div className="lp-brand">
-            <LogoMark />
+            <LogoMark height={42} />
             <div className="lp-brand__text">
-              <div className="lp-brand__name">
-                BUILD<em>TRACKING</em>
-              </div>
               <div className="lp-brand__tag">{t("tag")}</div>
             </div>
           </div>
@@ -100,62 +98,39 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
             </button>
           </div>
 
-          {/* Dashboard preview (KPIs) */}
-          <div className="lp-kpis">
-            <div>
-              <div className="lp-kpi__label">{t("kpiWorkers")}</div>
-              <div className="lp-kpi__value">47</div>
-              <div className="lp-kpi__delta">▲ 12% {t("vsYesterday")}</div>
-            </div>
-            <div>
-              <div className="lp-kpi__label">{t("kpiTrucks")}</div>
-              <div className="lp-kpi__value">16</div>
-              <div className="lp-kpi__delta">▲ 23% {t("vsYesterday")}</div>
-            </div>
-            <div>
-              <div className="lp-kpi__label">{t("kpiEquip")}</div>
-              <div className="lp-kpi__value">7</div>
-              <div className="lp-kpi__delta">▲ 2 {t("vsYesterday")}</div>
-            </div>
-            <div>
-              <div className="lp-kpi__label">{t("kpiDeliveries")}</div>
-              <div className="lp-kpi__value">12</div>
-              <div className="lp-kpi__delta">▲ 8% {t("vsYesterday")}</div>
-            </div>
-            <div className="lp-kpi--wide">
-              <div>
-                <div className="lp-kpi__label">{t("kpiProgress")}</div>
-                <div className="lp-kpi__value">63%</div>
-                <div className="lp-kpi__delta">{t("onSchedule")}</div>
-              </div>
-              <div className="lp-ring" aria-hidden="true" />
-            </div>
+          {/* Producto: cámara autónoma de marca */}
+          <div className="lp-hero__cam">
+            <img src="/images/cam-bt.jpg" alt="BT.ai autonomous camera" />
+            <span className="lp-hero__cam-tag">📷 {t("camT")}</span>
           </div>
         </div>
 
-        {/* AI modules */}
-        <h2 className="lp-sec">{t("secModules")}</h2>
-        <div className="lp-modules">
-          {modules.map((m) => (
-            <div className="lp-mod" key={m.k}>
-              <div className="lp-mod__ic">{m.ic}</div>
-              <div className="lp-mod__name">{t(m.k)}</div>
+        {/* AI detection — dashboard (tiles) + live site view */}
+        <h2 className="lp-sec">{t("secDetect")}</h2>
+        <div className="lp-tiles">
+          {tiles.map((tl) => (
+            <div className="lp-tile" key={tl.label}>
+              <span className="lp-tile__ic">{tl.ic}</span>
+              <div>
+                <div className="lp-tile__label">{t(tl.label)}</div>
+                <div className="lp-tile__value">{tl.value}</div>
+                <div className="lp-tile__delta">
+                  {tl.delta} {t("vsYesterday")}
+                </div>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* AI detection — vista en vivo + conteo + análisis */}
-        <h2 className="lp-sec">{t("secDetect")}</h2>
         <div className="lp-detect">
           <img className="lp-detect__img" src="/images/det-site.jpg" alt="Live site view" />
           <span className="lp-detect__tag">{t("live")}</span>
           <div className="lp-detect__chips">
-            <span className="lp-chip">👷 {t("mWorker")} <b>47</b></span>
-            <span className="lp-chip">🚚 {t("mTruck")} <b>16</b></span>
-            <span className="lp-chip">🚜 {t("mEquip")} <b>7</b></span>
+            <span className="lp-chip lp-chip--det lp-chip--worker">WORKERS <b>47</b></span>
+            <span className="lp-chip lp-chip--det lp-chip--truck">DUMP TRUCKS <b>16</b></span>
+            <span className="lp-chip lp-chip--det lp-chip--equip">EXCAVATORS <b>7</b></span>
           </div>
           <div className="lp-scan" />
-          {/* cajas ubicadas sobre la excavadora y un operario de la foto */}
           <span className="lp-box lp-box--equip" style={{ left: "44%", top: "34%", width: "26%", height: "34%" }}>
             <span className="lp-box__lb">EXCAVATOR 98%</span>
           </span>
@@ -206,23 +181,24 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
           </div>
         </div>
 
-        {/* Time-lapse (video real de obra) */}
+        {/* AI modules */}
+        <h2 className="lp-sec">{t("secModules")}</h2>
+        <div className="lp-modules">
+          {modules.map((m) => (
+            <div className="lp-mod" key={m.k}>
+              <div className="lp-mod__ic">{m.ic}</div>
+              <div className="lp-mod__name">{t(m.k)}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Time-lapse */}
         <div className="lp-timelapse">
           <div>
-            <h3 className="lp-timelapse__title">
-              🎬 {t("tlTitle")}
-            </h3>
+            <h3 className="lp-timelapse__title">🎬 {t("tlTitle")}</h3>
             <p className="lp-timelapse__desc">{t("tlDesc")}</p>
           </div>
-          <video
-            className="lp-timelapse__video"
-            src="/videos/pool-jan-aug.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            controls
-          />
+          <video className="lp-timelapse__video" src="/videos/pool-jan-aug.mp4" autoPlay muted loop playsInline controls />
         </div>
 
         {/* Subscription plans */}
@@ -276,7 +252,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         <div className="lp-kits-head">
           <h2 className="lp-sec">{t("secKits")}</h2>
           <div className="lp-cam">
-            <img className="lp-cam__photo" src="/images/cam-solar.jpg" alt={t("camT")} />
+            <img className="lp-cam__photo" src="/images/cam-bt.jpg" alt={t("camT")} />
             <div>
               <b>{t("camT")}</b>
               <div>{t("camD")}</div>
@@ -333,13 +309,16 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
           ))}
         </div>
 
-        {/* Footer CTA + contacto (solo teléfono por ahora) */}
+        {/* Footer CTA + contacto completo */}
         <div className="lp-foot">
           <div className="lp-foot__contact">
-            <div>
-              <strong>{t("footTitle")}</strong>
+            <div className="lp-foot__name">
+              <strong>Eduardo Valdez Vial</strong> · <span>Founder &amp; CEO</span>
             </div>
-            <div>📞 {CONTACT_PHONE}</div>
+            <div>📞 {CONTACT.phone}</div>
+            <div>📷 {CONTACT.ig}</div>
+            <div>✉️ {CONTACT.email}</div>
+            <div>📍 {CONTACT.location}</div>
           </div>
           <button className="lp__cta" onClick={onEnter}>
             {t("enterCta")} →
