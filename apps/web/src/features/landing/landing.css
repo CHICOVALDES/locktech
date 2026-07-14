@@ -70,6 +70,12 @@
   text-transform: uppercase;
 }
 
+.lp__topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .lp__enter-top {
   display: inline-flex;
   align-items: center;

@@ -1,9 +1,11 @@
 import "./landing.css";
+import { useI18n } from "../../i18n/I18nProvider.js";
+import { LanguageSwitcher } from "../../i18n/LanguageSwitcher.js";
+import { landingT } from "./landingTranslations.js";
 
 // Landing de presentación (BUILD TRACKING · Real-Time Construction Intelligence).
-// Se muestra al entrar a la plataforma, ANTES del login. El botón "Ingresar"
-// (onEnter) lleva a la pantalla de login/registro. Contenido basado en el
-// material de marketing del producto (módulos IA, planes, kits de hardware).
+// Se muestra al entrar, ANTES del login. Traducida a los 8 idiomas de la
+// plataforma (usa el mismo `locale` compartido) con su propio diccionario.
 
 function LogoMark({ size = 44 }: { size?: number }) {
   return (
@@ -15,32 +17,36 @@ function LogoMark({ size = 44 }: { size?: number }) {
   );
 }
 
-const MODULES = [
-  { ic: "👷", name: "Worker Counting" },
-  { ic: "🚚", name: "Truck Counting" },
-  { ic: "🚜", name: "Equipment Tracking" },
-  { ic: "📦", name: "Material Deliveries" },
-  { ic: "⛏️", name: "Earth Movement" },
-  { ic: "📈", name: "Productivity Analysis" },
-];
-
-const FEATURES = [
-  { ic: "🧠", t: "AI Powered Analytics" },
-  { ic: "☀️", t: "Solar Powered & Autonomous" },
-  { ic: "📶", t: "4G Connected" },
-  { ic: "🕐", t: "24/7 Monitoring" },
-  { ic: "🛡️", t: "Weather Resistant" },
-];
-
-const VALUES = [
-  { ic: "🛡️", t: "Reduce Delays", d: "Detectá problemas antes" },
-  { ic: "💲", t: "Control Costs", d: "Recursos en tiempo real" },
-  { ic: "📊", t: "Improve Productivity", d: "Decisiones con datos" },
-  { ic: "🌐", t: "Full Visibility", d: "Desde cualquier lugar" },
-  { ic: "📄", t: "Automatic Reports", d: "Ahorrá tiempo, más precisión" },
-];
+// Número de teléfono de contacto (único dato por ahora; el resto se agrega luego).
+const CONTACT_PHONE = "+62 812 3456 7890";
 
 export function LandingPage({ onEnter }: { onEnter: () => void }) {
+  const { locale } = useI18n();
+  const t = (k: string) => landingT(locale, k);
+
+  const modules = [
+    { ic: "👷", k: "mWorker" },
+    { ic: "🚚", k: "mTruck" },
+    { ic: "🚜", k: "mEquip" },
+    { ic: "📦", k: "mMaterial" },
+    { ic: "⛏️", k: "mEarth" },
+    { ic: "📈", k: "mProductivity" },
+  ];
+  const features = [
+    { ic: "🧠", k: "fAi" },
+    { ic: "☀️", k: "fSolar" },
+    { ic: "📶", k: "f4g" },
+    { ic: "🕐", k: "f247" },
+    { ic: "🛡️", k: "fWeather" },
+  ];
+  const values = [
+    { ic: "🛡️", t: "v1t", d: "v1d" },
+    { ic: "💲", t: "v2t", d: "v2d" },
+    { ic: "📊", t: "v3t", d: "v3d" },
+    { ic: "🌐", t: "v4t", d: "v4d" },
+    { ic: "📄", t: "v5t", d: "v5d" },
+  ];
+
   return (
     <div className="lp">
       <div className="lp__inner">
@@ -52,60 +58,63 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
               <div className="lp-brand__name">
                 BUILD<em>TRACKING</em>
               </div>
-              <div className="lp-brand__tag">Real-Time Construction Intelligence</div>
+              <div className="lp-brand__tag">{t("tag")}</div>
             </div>
           </div>
-          <button className="lp__enter-top" onClick={onEnter}>
-            Ingresar →
-          </button>
+          <div className="lp__topbar-actions">
+            <LanguageSwitcher />
+            <button className="lp__enter-top" onClick={onEnter}>
+              {t("enter")} →
+            </button>
+          </div>
         </div>
 
         {/* Hero */}
         <div className="lp-hero">
           <div>
             <h1 className="lp-hero__title">
-              Sabé exactamente qué pasa en tu obra, <em>todos los días.</em>
+              {t("heroA")} <em>{t("heroB")}</em>
             </h1>
             <ul className="lp-features">
-              {FEATURES.map((f) => (
-                <li className="lp-feature" key={f.t}>
+              {features.map((f) => (
+                <li className="lp-feature" key={f.k}>
                   <span className="lp-feature__ic">{f.ic}</span>
-                  {f.t}
+                  {t(f.k)}
                 </li>
               ))}
             </ul>
             <button className="lp__cta" onClick={onEnter}>
-              Ingresar a la plataforma →
+              {t("enterCta")} →
             </button>
           </div>
 
           {/* Dashboard preview (KPIs) */}
           <div className="lp-kpis">
             <div>
-              <div className="lp-kpi__label">Workers Today</div>
+              <div className="lp-kpi__label">{t("kpiWorkers")}</div>
               <div className="lp-kpi__value">47</div>
-              <div className="lp-kpi__delta">▲ 12% vs ayer</div>
+              <div className="lp-kpi__delta">▲ 12% {t("vsYesterday")}</div>
             </div>
             <div>
-              <div className="lp-kpi__label">Trucks Today</div>
+              <div className="lp-kpi__label">{t("kpiTrucks")}</div>
               <div className="lp-kpi__value">16</div>
-              <div className="lp-kpi__delta">▲ 23% vs ayer</div>
+              <div className="lp-kpi__delta">▲ 23% {t("vsYesterday")}</div>
             </div>
             <div>
-              <div className="lp-kpi__label">Equipment Active</div>
+              <div className="lp-kpi__label">{t("kpiEquip")}</div>
               <div className="lp-kpi__value">7</div>
-              <div className="lp-kpi__delta">▲ 2 vs ayer</div>
+              <div className="lp-kpi__delta">▲ 2 {t("vsYesterday")}</div>
             </div>
             <div>
-              <div className="lp-kpi__label">Material Deliveries</div>
+              <div className="lp-kpi__label">{t("kpiDeliveries")}</div>
               <div className="lp-kpi__value">12</div>
-              <div className="lp-kpi__delta">▲ 8% vs ayer</div>
+              <div className="lp-kpi__delta">▲ 8% {t("vsYesterday")}</div>
             </div>
             <div className="lp-kpi--wide">
               <div>
-                <div className="lp-kpi__label">Project Progress</div>
+                <div className="lp-kpi__label">{t("kpiProgress")}</div>
                 <div className="lp-kpi__value">63%</div>
-                <div className="lp-kpi__delta">On Schedule</div>
+                <div className="lp-kpi__delta">{t("onSchedule")}</div>
               </div>
               <div className="lp-ring" aria-hidden="true" />
             </div>
@@ -113,133 +122,125 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         </div>
 
         {/* AI modules */}
-        <h2 className="lp-sec">
-          Módulos de <em>análisis con IA</em>
-        </h2>
+        <h2 className="lp-sec">{t("secModules")}</h2>
         <div className="lp-modules">
-          {MODULES.map((m) => (
-            <div className="lp-mod" key={m.name}>
+          {modules.map((m) => (
+            <div className="lp-mod" key={m.k}>
               <div className="lp-mod__ic">{m.ic}</div>
-              <div className="lp-mod__name">{m.name}</div>
+              <div className="lp-mod__name">{t(m.k)}</div>
             </div>
           ))}
         </div>
 
         {/* Subscription plans */}
-        <h2 className="lp-sec">
-          Planes <em>mensuales</em>
-        </h2>
+        <h2 className="lp-sec">{t("secPlans")}</h2>
         <div className="lp-cards">
           <div className="lp-plan lp-plan--basic">
             <div className="lp-plan__name">BASIC</div>
             <div className="lp-plan__price">
-              IDR 3.900.000 <span>/ mes</span>
+              IDR 3.900.000 <span>{t("perMonth")}</span>
             </div>
             <ul className="lp-list">
-              <li>Acceso al dashboard</li>
-              <li>Fotos automáticas</li>
-              <li>Time-lapse</li>
-              <li>Reportes semanales</li>
-              <li>Almacenamiento en la nube</li>
+              <li>{t("b1")}</li>
+              <li>{t("b2")}</li>
+              <li>{t("b3")}</li>
+              <li>{t("b4")}</li>
+              <li>{t("b5")}</li>
             </ul>
           </div>
           <div className="lp-plan lp-plan--pro lp-plan--popular">
-            <span className="lp-badge">Más popular</span>
+            <span className="lp-badge">{t("popular")}</span>
             <div className="lp-plan__name">PROFESSIONAL</div>
             <div className="lp-plan__price">
-              IDR 6.900.000 <span>/ mes</span>
+              IDR 6.900.000 <span>{t("perMonth")}</span>
             </div>
             <ul className="lp-list">
-              <li>Todo lo de Basic</li>
-              <li>Conteo de personal</li>
-              <li>Conteo de camiones</li>
-              <li>Reportes con IA</li>
-              <li>Seguimiento de avance</li>
-              <li>Soporte prioritario</li>
+              <li>{t("p1")}</li>
+              <li>{t("p2")}</li>
+              <li>{t("p3")}</li>
+              <li>{t("p4")}</li>
+              <li>{t("p5")}</li>
+              <li>{t("p6")}</li>
             </ul>
           </div>
           <div className="lp-plan lp-plan--ent">
             <div className="lp-plan__name">ENTERPRISE</div>
             <div className="lp-plan__price">
-              IDR 12.900.000 <span>/ mes</span>
+              IDR 12.900.000 <span>{t("perMonth")}</span>
             </div>
             <ul className="lp-list">
-              <li>Todo lo de Professional</li>
-              <li>Multi-proyecto</li>
-              <li>Dashboard para inversores</li>
-              <li>Reportes personalizados</li>
-              <li>Acceso a API</li>
-              <li>Soporte dedicado</li>
+              <li>{t("e1")}</li>
+              <li>{t("e2")}</li>
+              <li>{t("e3")}</li>
+              <li>{t("e4")}</li>
+              <li>{t("e5")}</li>
+              <li>{t("e6")}</li>
             </ul>
           </div>
         </div>
 
         {/* Hardware kits */}
-        <h2 className="lp-sec">
-          Kits de <em>hardware</em> (pago único)
-        </h2>
+        <h2 className="lp-sec">{t("secKits")}</h2>
         <div className="lp-cards">
           <div className="lp-kit">
             <div className="lp-kit__name">KIT STARTER</div>
             <div className="lp-kit__price">IDR 25.000.000</div>
             <ul className="lp-list">
-              <li>1 cámara IA 8MP</li>
-              <li>Panel solar 200W</li>
-              <li>Batería LiFePO4 100Ah</li>
-              <li>Router 4G LTE</li>
-              <li>Instalación incluida</li>
-              <li>Dashboard + time-lapse</li>
+              <li>{t("ks1")}</li>
+              <li>{t("ks2")}</li>
+              <li>{t("ks3")}</li>
+              <li>{t("ks4")}</li>
+              <li>{t("ks5")}</li>
+              <li>{t("ks6")}</li>
             </ul>
           </div>
           <div className="lp-kit lp-kit--pro">
             <div className="lp-kit__name">KIT PRO</div>
             <div className="lp-kit__price">IDR 39.000.000</div>
             <ul className="lp-list">
-              <li>2 cámaras IA 8MP</li>
-              <li>Cobertura extendida</li>
-              <li>Seguimiento de equipos</li>
-              <li>Control de contratistas</li>
-              <li>Dashboard avanzado + IA</li>
-              <li>Soporte prioritario</li>
+              <li>{t("kp1")}</li>
+              <li>{t("kp2")}</li>
+              <li>{t("kp3")}</li>
+              <li>{t("kp4")}</li>
+              <li>{t("kp5")}</li>
+              <li>{t("kp6")}</li>
             </ul>
           </div>
           <div className="lp-kit lp-kit--ent">
             <div className="lp-kit__name">KIT ENTERPRISE</div>
-            <div className="lp-kit__price">desde IDR 59.000.000</div>
+            <div className="lp-kit__price">IDR 59.000.000+</div>
             <ul className="lp-list">
-              <li>3+ cámaras IA 8MP</li>
-              <li>Gestión multi-sitio</li>
-              <li>Dashboard para inversores</li>
-              <li>Análisis de movimiento de tierra</li>
-              <li>Estimación de costos + API</li>
-              <li>Soporte dedicado</li>
+              <li>{t("ke1")}</li>
+              <li>{t("ke2")}</li>
+              <li>{t("ke3")}</li>
+              <li>{t("ke4")}</li>
+              <li>{t("ke5")}</li>
+              <li>{t("ke6")}</li>
             </ul>
           </div>
         </div>
 
         {/* Value props */}
         <div className="lp-values">
-          {VALUES.map((v) => (
+          {values.map((v) => (
             <div className="lp-val" key={v.t}>
               <div className="lp-val__ic">{v.ic}</div>
-              <div className="lp-val__t">{v.t}</div>
-              <div className="lp-val__d">{v.d}</div>
+              <div className="lp-val__t">{t(v.t)}</div>
+              <div className="lp-val__d">{t(v.d)}</div>
             </div>
           ))}
         </div>
 
-        {/* Footer CTA + contacto */}
+        {/* Footer CTA + contacto (solo teléfono por ahora) */}
         <div className="lp-foot">
           <div className="lp-foot__contact">
             <div>
-              <strong>Let's track your project</strong>
+              <strong>{t("footTitle")}</strong>
             </div>
-            <div>📞 +62 812 3456 7890</div>
-            <div>✉️ info@buildtracking.com · 🌐 www.buildtracking.com</div>
-            <div>📍 Bali, Indonesia</div>
+            <div>📞 {CONTACT_PHONE}</div>
           </div>
           <button className="lp__cta" onClick={onEnter}>
-            Ingresar a la plataforma →
+            {t("enterCta")} →
           </button>
         </div>
       </div>
