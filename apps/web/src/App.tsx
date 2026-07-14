@@ -11,6 +11,7 @@ import { CameraFeed } from "./features/cameras/CameraFeed.js";
 import { RecoveryTimelapse } from "./features/recovery/RecoveryTimelapse.js";
 import { useAuth } from "./features/auth/useAuth.js";
 import { LoginScreen } from "./features/auth/LoginScreen.js";
+import { LandingPage } from "./features/landing/LandingPage.js";
 import { AdminFleet } from "./features/admin/AdminFleet.js";
 import { DeviceManager } from "./features/admin/DeviceManager.js";
 import { UserManager } from "./features/admin/UserManager.js";
@@ -30,6 +31,8 @@ export function App() {
   const [cameraTarget, setCameraTarget] = useState<"home" | null>(null);
   const [customizations, setCustomizations] = useState<Record<string, VehicleCustomization>>({});
   const [view, setView] = useState<View>("tracking");
+  // Landing de presentación: se ve al entrar, antes del login (una vez por carga).
+  const [showLanding, setShowLanding] = useState(true);
   const { records, addCheckin } = useCheckinLog();
 
   const isAdmin = account?.role === "admin";
@@ -39,6 +42,11 @@ export function App() {
     if (!account) return;
     setView(account.role === "admin" ? "flota" : "tracking");
   }, [account]);
+
+  // Landing de presentación antes del login (solo si no hay sesión activa).
+  if (!account && showLanding) {
+    return <LandingPage onEnter={() => setShowLanding(false)} />;
+  }
 
   // Gate de autenticación: sin sesión no se ve la plataforma.
   if (!account) {
