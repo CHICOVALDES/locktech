@@ -92,8 +92,60 @@ export function loadRegisteredAccounts(): ClientAccount[] {
   }
 }
 
+// Ediciones del admin sobre cualquier cuenta (incluidas las de fábrica): se
+// guardan como "overrides" en localStorage y se aplican encima de la cuenta base.
+const OVERRIDES_KEY = "bmt.account.overrides";
+
+export interface AccountPatch {
+  businessName?: string;
+  contactName?: string;
+  phone?: string;
+  plan?: string;
+  password?: string;
+  role?: Role;
+}
+
+function loadOverrides(): Record<string, AccountPatch> {
+  try {
+    const raw = localStorage.getItem(OVERRIDES_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, AccountPatch>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function applyOverride(acc: ClientAccount, patch?: AccountPatch): ClientAccount {
+  if (!patch) return acc;
+  return {
+    ...acc,
+    password: patch.password ?? acc.password,
+    role: patch.role ?? acc.role,
+    profile: {
+      ...acc.profile,
+      businessName: patch.businessName ?? acc.profile.businessName,
+      contactName: patch.contactName ?? acc.profile.contactName,
+      phone: patch.phone ?? acc.profile.phone,
+      plan: patch.plan ?? acc.profile.plan,
+    },
+  };
+}
+
 export function allAccounts(): ClientAccount[] {
-  return [...DEMO_ACCOUNTS, ...loadRegisteredAccounts()];
+  const overrides = loadOverrides();
+  return [...DEMO_ACCOUNTS, ...loadRegisteredAccounts()].map((a) => applyOverride(a, overrides[a.username]));
+}
+
+// Edita una cuenta (cualquiera, incl. de fábrica). Guarda un override local.
+export function updateAccount(username: string, patch: AccountPatch): { error?: string } {
+  const u = username.trim().toLowerCase();
+  if (!findAccount(u)) return { error: "La cuenta no existe." };
+  if (patch.password !== undefined && patch.password.trim() === "") {
+    return { error: "La contraseña no puede quedar vacía." };
+  }
+  const overrides = loadOverrides();
+  overrides[u] = { ...overrides[u], ...patch };
+  localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+  return {};
 }
 
 export function findAccount(username: string): ClientAccount | null {

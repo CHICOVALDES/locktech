@@ -459,6 +459,77 @@ body {
   cursor: not-allowed;
 }
 
+/* Edición de usuarios: ojo de contraseña, cancelar, acciones de lista. */
+.devform--editing {
+  border-color: var(--racing-accent);
+  box-shadow: 0 0 0 1px var(--racing-accent);
+}
+.devform__pass {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.devform__pass .devform__input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+.devform__eye {
+  position: absolute;
+  right: 0.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.3rem;
+  opacity: 0.85;
+}
+.devform__eye:hover {
+  opacity: 1;
+}
+.devform__cancel {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+.devform__cancel:hover {
+  color: var(--text-primary);
+  border-color: var(--racing-accent);
+}
+.devlist__item-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.devlist__action {
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+}
+.devlist__action:hover {
+  color: var(--text-primary);
+  border-color: var(--racing-accent);
+}
+.devlist__action--danger:hover {
+  border-color: var(--status-critical);
+  color: var(--status-critical);
+}
+.devlist__item--editing {
+  border-color: var(--racing-accent);
+}
+
 .devlist__title {
   margin: 0 0 0.85rem;
   font-size: 0.8rem;

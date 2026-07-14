@@ -5,18 +5,20 @@ import {
   isFactoryAccount,
   PLANS,
   removeRegisteredAccount,
+  updateAccount,
   type ClientAccount,
   type Role,
 } from "../auth/accounts.js";
 
-// Panel de administración de usuarios (solo admin). Permite crear clientes (y
-// otros admins) y eliminar los creados. Demo: persiste en localStorage vía
-// accounts.ts. En Fase 1 esto pega contra el backend real de auth.
+// Panel de administración de usuarios (solo admin). Crear, EDITAR (incl. cambiar
+// contraseña / rol / plan de cualquier cuenta, incluidas las de fábrica) y
+// eliminar los creados. Demo: persiste en localStorage vía accounts.ts.
 
 const ROLE_LABEL: Record<Role, string> = { admin: "Administrador", client: "Cliente" };
 
 export function UserManager() {
   const [accounts, setAccounts] = useState<ClientAccount[]>(() => allAccounts());
+  const [editing, setEditing] = useState<ClientAccount | null>(null);
 
   function refresh() {
     setAccounts(allAccounts());
@@ -24,6 +26,7 @@ export function UserManager() {
 
   function handleRemove(username: string) {
     removeRegisteredAccount(username);
+    if (editing?.username === username) setEditing(null);
     refresh();
   }
 
@@ -34,7 +37,18 @@ export function UserManager() {
       </header>
 
       <div className="devmgr__cols">
-        <UserForm onCreated={refresh} />
+        {editing ? (
+          <EditUserForm
+            account={editing}
+            onSaved={() => {
+              setEditing(null);
+              refresh();
+            }}
+            onCancel={() => setEditing(null)}
+          />
+        ) : (
+          <UserForm onCreated={refresh} />
+        )}
 
         <section className="devlist">
           <h2 className="devlist__title">Usuarios ({accounts.length})</h2>
@@ -42,7 +56,7 @@ export function UserManager() {
             {accounts.map((a) => {
               const factory = isFactoryAccount(a.username);
               return (
-                <li key={a.username} className="devlist__item">
+                <li key={a.username} className={`devlist__item ${editing?.username === a.username ? "devlist__item--editing" : ""}`}>
                   <div className="devlist__item-main">
                     <span className="devlist__item-name">{a.profile.businessName}</span>
                     <span className="devlist__badge">{ROLE_LABEL[a.role]}</span>
@@ -53,11 +67,16 @@ export function UserManager() {
                   <span className="devlist__item-line">
                     {a.profile.contactName} · {a.profile.phone} · {a.devices.length} equipo(s)
                   </span>
-                  {!factory && (
-                    <button className="devlist__remove" onClick={() => handleRemove(a.username)} aria-label="Eliminar">
-                      ✕
+                  <div className="devlist__item-actions">
+                    <button className="devlist__action" onClick={() => setEditing(a)}>
+                      ✎ Editar
                     </button>
-                  )}
+                    {!factory && (
+                      <button className="devlist__action devlist__action--danger" onClick={() => handleRemove(a.username)}>
+                        ✕ Eliminar
+                      </button>
+                    )}
+                  </div>
                 </li>
               );
             })}
@@ -68,12 +87,110 @@ export function UserManager() {
   );
 }
 
+// --- Editar usuario existente ---
+function EditUserForm({ account, onSaved, onCancel }: { account: ClientAccount; onSaved: () => void; onCancel: () => void }) {
+  const [businessName, setBusinessName] = useState(account.profile.businessName);
+  const [contactName, setContactName] = useState(account.profile.contactName);
+  const [phone, setPhone] = useState(account.profile.phone);
+  const [plan, setPlan] = useState(account.profile.plan);
+  const [role, setRole] = useState<Role>(account.role);
+  const [password, setPassword] = useState(account.password);
+  const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [ok, setOk] = useState<string | null>(null);
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    const result = updateAccount(account.username, { businessName, contactName, phone, plan, role, password });
+    if (result.error) {
+      setError(result.error);
+      setOk(null);
+      return;
+    }
+    setError(null);
+    setOk("Cambios guardados.");
+    setTimeout(onSaved, 400);
+  }
+
+  return (
+    <form className="devform devform--editing" onSubmit={handleSubmit}>
+      <h2 className="devform__title">Editar · {account.username}</h2>
+
+      <label className="devform__field">
+        <span className="devform__label">Razón social / negocio</span>
+        <input className="devform__input" value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
+      </label>
+
+      <div className="devform__row">
+        <label className="devform__field devform__field--grow">
+          <span className="devform__label">Nombre de contacto</span>
+          <input className="devform__input" value={contactName} onChange={(e) => setContactName(e.target.value)} />
+        </label>
+        <label className="devform__field devform__field--grow">
+          <span className="devform__label">Teléfono</span>
+          <input className="devform__input" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        </label>
+      </div>
+
+      <label className="devform__field">
+        <span className="devform__label">Contraseña</span>
+        <div className="devform__pass">
+          <input
+            className="devform__input"
+            type={showPass ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button type="button" className="devform__eye" onClick={() => setShowPass((s) => !s)} title={showPass ? "Ocultar" : "Mostrar"}>
+            {showPass ? "🙈" : "👁️"}
+          </button>
+        </div>
+      </label>
+
+      <div className="devform__row">
+        <label className="devform__field devform__field--grow">
+          <span className="devform__label">Rol</span>
+          <select className="devform__input" value={role} onChange={(e) => setRole(e.target.value as Role)}>
+            <option value="client">Cliente</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </label>
+        <label className="devform__field devform__field--grow">
+          <span className="devform__label">Plan</span>
+          <select className="devform__input" value={plan} onChange={(e) => setPlan(e.target.value)}>
+            {PLANS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+            {!PLANS.includes(plan) && <option value={plan}>{plan}</option>}
+          </select>
+        </label>
+      </div>
+
+      {error && <p className="devmgr__warn">{error}</p>}
+      {ok && <p className="devform__preview-label">{ok}</p>}
+
+      <div className="devform__row">
+        <button className="devform__submit" type="submit">
+          Guardar cambios
+        </button>
+        <button className="devform__cancel" type="button" onClick={onCancel}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// --- Crear usuario nuevo ---
 function UserForm({ onCreated }: { onCreated: () => void }) {
   const [businessName, setBusinessName] = useState("");
   const [contactName, setContactName] = useState("");
   const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [role, setRole] = useState<Role>("client");
   const [plan, setPlan] = useState(PLANS[0]);
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +244,17 @@ function UserForm({ onCreated }: { onCreated: () => void }) {
         </label>
         <label className="devform__field devform__field--grow">
           <span className="devform__label">Contraseña</span>
-          <input className="devform__input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <div className="devform__pass">
+            <input
+              className="devform__input"
+              type={showPass ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button type="button" className="devform__eye" onClick={() => setShowPass((s) => !s)} title={showPass ? "Ocultar" : "Mostrar"}>
+              {showPass ? "🙈" : "👁️"}
+            </button>
+          </div>
         </label>
       </div>
 
