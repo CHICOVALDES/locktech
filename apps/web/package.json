@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@bali-moto-track/shared-types": "workspace:*",
+    "hls.js": "^1.6.16",
     "maplibre-gl": "^4.7.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

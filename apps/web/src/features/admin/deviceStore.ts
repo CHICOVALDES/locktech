@@ -55,8 +55,36 @@ export interface Camera {
   stream: "main" | "sub"; // Hikvision
   path: string; // ONVIF/RTSP: ruta después del host
   rtspUrl: string;
+  /** URL reproducible en el navegador (HLS .m3u8, MJPEG o snapshot) para el
+      preview/test — el RTSP no se puede ver directo en el browser. */
+  previewUrl?: string;
   clientUsername: string;
   createdAt: string;
+}
+
+// Sugerencia de URL de snapshot HTTP por marca (para el test rápido "¿hay imagen?").
+// Ojo: Hikvision/Dahua usan digest-auth y muchos navegadores no cargan esas
+// imágenes con user:pass@ — lo confiable es exponer HLS/MJPEG por un gateway
+// (go2rtc/MediaMTX) a través del túnel. Esto queda como ayuda/relleno del campo.
+export function buildSnapshotUrl(input: {
+  type: CameraType | NvrBrand;
+  host: string;
+  username: string;
+  password: string;
+  channel: number;
+}): string {
+  const auth = input.username ? `${input.username}:${input.password}@` : "";
+  const h = `http://${auth}${input.host}`;
+  switch (input.type) {
+    case "hikvision":
+      return `${h}/ISAPI/Streaming/channels/${input.channel}01/picture`;
+    case "dahua":
+      return `${h}/cgi-bin/snapshot.cgi?channel=${input.channel}`;
+    case "xm":
+      return `${h}/webcapture.jpg?command=snap&channel=${input.channel}`;
+    default:
+      return `${h}/onvif-http/snapshot?Profile_${input.channel}`;
+  }
 }
 
 // Construye la URL RTSP según el tipo de cámara.

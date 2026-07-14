@@ -530,6 +530,120 @@ body {
   border-color: var(--racing-accent);
 }
 
+/* Test de cámara en vivo (admin) */
+.devform__test {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  background: #141414;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-top: 0.25rem;
+}
+.devform__test-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.devform__mini {
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--racing-accent);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.devform__test-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #111111;
+  background: var(--racing-accent);
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+}
+.devform__test-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.devform__note {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.devform__note code {
+  color: var(--text-secondary);
+}
+
+.campreview {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #000;
+}
+.campreview--empty {
+  padding: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+.campreview__stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.campreview__media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.campreview__badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7);
+}
+.campreview__badge--ok { color: #35c07a; }
+.campreview__badge--loading { color: var(--racing-accent); }
+.campreview__badge--error { color: #e2574c; }
+.campreview__badge--idle { color: var(--text-muted); }
+.campreview__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+  background: #141414;
+}
+.campreview__btn {
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  cursor: pointer;
+}
+.campreview__hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
 .devlist__title {
   margin: 0 0 0.85rem;
   font-size: 0.8rem;

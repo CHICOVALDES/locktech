@@ -4,16 +4,19 @@ import {
   ASSET_TYPES,
   buildNvrChannelRtsp,
   buildRtspUrl,
+  buildSnapshotUrl,
   CAMERA_TYPES,
   NVR_BRANDS,
   TRACKER_PROTOCOLS,
   useDevices,
   type AssetType,
+  type Camera,
   type CameraType,
   type Nvr,
   type NvrBrand,
   type TrackerProtocol,
 } from "./deviceStore.js";
+import { CameraPreview } from "./CameraPreview.js";
 
 type Section = "gps" | "nvr" | "cameras";
 
@@ -74,17 +77,7 @@ export function DeviceManager() {
       ) : (
         <div className="devmgr__cols">
           <CameraForm clients={clients} onAdd={addCamera} />
-          <DeviceList
-            title="Cámaras dadas de alta"
-            empty="Todavía no cargaste ninguna cámara."
-            items={cameras.map((c) => ({
-              id: c.id,
-              primary: c.name,
-              badge: CAMERA_TYPES.find((t) => t.id === c.type)?.label ?? c.type,
-              lines: [c.rtspUrl.replace(/:[^:@/]*@/, ":••••@"), `Cliente: ${clientLabel(c.clientUsername)}`],
-            }))}
-            onRemove={removeCamera}
-          />
+          <CameraList cameras={cameras} clientLabel={clientLabel} onRemove={removeCamera} />
         </div>
       )}
     </div>
@@ -204,10 +197,16 @@ function CameraForm({
   const [stream, setStream] = useState<"main" | "sub">("main");
   const [path, setPath] = useState("Streaming/Channels/101");
   const [clientUsername, setClientUsername] = useState(clients[0]?.username ?? "");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [testing, setTesting] = useState(false);
 
   const isHik = type === "hikvision";
   const rtspUrl = buildRtspUrl({ type, host: host || "IP-CAMARA", port, username, password, channel, stream, path });
   const canSubmit = name.trim() && host.trim() && clientUsername;
+
+  function suggestSnapshot() {
+    setPreviewUrl(buildSnapshotUrl({ type, host: host || "192.168.1.64", username, password, channel }));
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -223,11 +222,14 @@ function CameraForm({
       stream,
       path: path.trim(),
       rtspUrl: buildRtspUrl({ type, host: host.trim(), port, username: username.trim(), password, channel, stream, path: path.trim() }),
+      previewUrl: previewUrl.trim() || undefined,
       clientUsername,
     });
     setName("");
     setHost("");
     setPassword("");
+    setPreviewUrl("");
+    setTesting(false);
   }
 
   return (
@@ -309,10 +311,89 @@ function CameraForm({
         <code className="devform__preview-url">{rtspUrl.replace(/:[^:@/]*@/, ":••••@")}</code>
       </div>
 
+      {/* Test en vivo: URL reproducible en el navegador (HLS/MJPEG/snapshot). */}
+      <div className="devform__test">
+        <div className="devform__test-head">
+          <span className="devform__label">Probar imagen en vivo (URL HLS / MJPEG / snapshot)</span>
+          <button type="button" className="devform__mini" onClick={suggestSnapshot} title="Sugerir snapshot HTTP por marca">
+            sugerir
+          </button>
+        </div>
+        <input
+          className="devform__input"
+          placeholder="https://tu-tunel/api/stream.m3u8?src=cam  ·  o snapshot .jpg"
+          value={previewUrl}
+          onChange={(e) => setPreviewUrl(e.target.value)}
+        />
+        <button
+          type="button"
+          className="devform__test-btn"
+          onClick={() => setTesting(Boolean(previewUrl.trim()))}
+          disabled={!previewUrl.trim()}
+        >
+          🔴 Probar en vivo
+        </button>
+        {testing && <CameraPreview url={previewUrl.trim()} />}
+        <p className="devform__note">
+          El navegador no reproduce RTSP directo. Para ver la cámara acá exponé un <b>HLS/MJPEG</b> por el túnel
+          (ej. <code>go2rtc</code>/<code>MediaMTX</code> convierte RTSP→HLS) y pegá esa URL.
+        </p>
+      </div>
+
       <button className="devform__submit" type="submit" disabled={!canSubmit}>
         Agregar cámara
       </button>
     </form>
+  );
+}
+
+/* ---------- Listado de cámaras con preview en vivo ---------- */
+
+function CameraList({
+  cameras,
+  clientLabel,
+  onRemove,
+}: {
+  cameras: Camera[];
+  clientLabel: (username: string) => string;
+  onRemove: (id: string) => void;
+}) {
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  return (
+    <section className="devlist">
+      <h2 className="devlist__title">Cámaras dadas de alta</h2>
+      {cameras.length === 0 ? (
+        <p className="devlist__empty">Todavía no cargaste ninguna cámara.</p>
+      ) : (
+        <ul className="devlist__items">
+          {cameras.map((c) => {
+            const open = openId === c.id;
+            return (
+              <li key={c.id} className="devlist__item">
+                <div className="devlist__item-main">
+                  <span className="devlist__item-name">{c.name}</span>
+                  <span className="devlist__badge">{CAMERA_TYPES.find((t) => t.id === c.type)?.label ?? c.type}</span>
+                </div>
+                <code className="devform__preview-url">{c.rtspUrl.replace(/:[^:@/]*@/, ":••••@")}</code>
+                <span className="devlist__item-line">Cliente: {clientLabel(c.clientUsername)}</span>
+                <div className="devlist__item-actions">
+                  {c.previewUrl && (
+                    <button className="devlist__action" onClick={() => setOpenId(open ? null : c.id)}>
+                      {open ? "Ocultar" : "▶ Ver en vivo"}
+                    </button>
+                  )}
+                  <button className="devlist__action devlist__action--danger" onClick={() => onRemove(c.id)}>
+                    ✕ Eliminar
+                  </button>
+                </div>
+                {open && c.previewUrl && <CameraPreview url={c.previewUrl} />}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 
