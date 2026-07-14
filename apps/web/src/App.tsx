@@ -15,6 +15,7 @@ import { LandingPage } from "./features/landing/LandingPage.js";
 import { AdminFleet } from "./features/admin/AdminFleet.js";
 import { DeviceManager } from "./features/admin/DeviceManager.js";
 import { UserManager } from "./features/admin/UserManager.js";
+import { BtLogo } from "./components/BtLogo.js";
 import { ObrasDashboard } from "./features/buildtrack/ObrasDashboard.js";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher.js";
 import { useI18n } from "./i18n/I18nProvider.js";
@@ -82,7 +83,10 @@ export function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <span className="app__logo">BALI MOTO TRACK</span>
+        <span className="app__logo">
+          <BtLogo height={26} />
+          <span className="app__logo-name">BUILD TRACKING</span>
+        </span>
         <nav className="app__nav">
           {isAdmin && (
             <button className={`app__nav-btn ${view === "flota" ? "app__nav-btn--active" : ""}`} onClick={() => setView("flota")}>

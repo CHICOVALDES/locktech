@@ -7,15 +7,15 @@ import { landingT } from "./landingTranslations.js";
 // del login. Identidad oficial: dorado #FFC107, negro #111111, Montserrat.
 // Logo "BT.ai" (barras doradas + BT blanco + .ai dorado). Traducida a 8 idiomas.
 
-// Logo oficial BT.ai: barras ascendentes doradas + "BT" blanco + ".ai" dorado.
+// Logo oficial BUILD TRACKING: barras ascendentes doradas + "BT" (B blanco, T dorado).
 function LogoMark({ height = 40 }: { height?: number }) {
   return (
-    <svg className="lp-logo" height={height} viewBox="0 0 138 48" role="img" aria-label="BT.ai — Build Tracking">
+    <svg className="lp-logo" height={height} viewBox="0 0 90 48" role="img" aria-label="Build Tracking">
       <rect x="2" y="30" width="7" height="16" rx="1" fill="#ffc107" />
       <rect x="12" y="21" width="7" height="25" rx="1" fill="#ffc107" />
       <rect x="22" y="12" width="7" height="34" rx="1" fill="#ffc107" />
-      <text x="34" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="40" fill="#ffffff">BT</text>
-      <text x="90" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="40" fill="#ffc107">.ai</text>
+      <text x="34" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="40" fill="#ffffff">B</text>
+      <text x="60" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="40" fill="#ffc107">T</text>
     </svg>
   );
 }
@@ -66,8 +66,9 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         {/* Topbar */}
         <div className="lp__topbar">
           <div className="lp-brand">
-            <LogoMark height={42} />
+            <LogoMark height={40} />
             <div className="lp-brand__text">
+              <div className="lp-brand__name">BUILD TRACKING</div>
               <div className="lp-brand__tag">{t("tag")}</div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import type { Project } from "@bali-moto-track/shared-types";
+import { siteSnapshot } from "./helpers.js";
 
 // Mapa de las obras: un marcador por construcción en sus coordenadas, con el ícono
 // del proyecto (hotel/obra/beach club) y un pulso según el estado. Click en el
@@ -44,9 +45,22 @@ export function ObrasMap({ projects, onOpen }: { projects: Project[]; onOpen: (i
 
     const bounds = new maplibregl.LngLatBounds();
     for (const project of projects) {
+      const snap = siteSnapshot(project);
+      const machineChips = snap.machines
+        .map((m) => `<span class="bt-map-pin__chip bt-map-pin__chip--machine">${m.icon} ×${m.count}</span>`)
+        .join("");
+      // Fila de analítica de visión: dotación (personas) + máquinas detectadas.
+      const analytics = `<span class="bt-map-pin__analytics">` +
+        `<span class="bt-map-pin__chip bt-map-pin__chip--people">👷 ${snap.people}</span>` +
+        machineChips +
+        `</span>`;
+
       const el = document.createElement("div");
       el.className = `bt-map-pin bt-map-pin--${project.status}`;
-      el.innerHTML = `<span class="bt-map-pin__icon">${project.icon ?? "🏗️"}</span><span class="bt-map-pin__label">${project.name}</span>`;
+      el.innerHTML =
+        `<span class="bt-map-pin__icon">${project.icon ?? "🏗️"}</span>` +
+        `<span class="bt-map-pin__label">${project.name}</span>` +
+        analytics;
       el.addEventListener("click", () => onOpenRef.current(project.id));
 
       const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
@@ -67,7 +81,7 @@ export function ObrasMap({ projects, onOpen }: { projects: Project[]; onOpen: (i
   return (
     <div className="bt-map">
       <div ref={containerRef} className="bt-map__canvas" />
-      <span className="bt-map__badge">🏗️ Obras en el mapa</span>
+      <span className="bt-map__badge">🛰️ Obras · detección en vivo (👷 dotación · 🚜 máquinas)</span>
     </div>
   );
 }

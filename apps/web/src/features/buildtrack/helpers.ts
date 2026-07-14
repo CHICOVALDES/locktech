@@ -126,3 +126,40 @@ export function componentCategoryMeta(category: string): { label: string; icon: 
   const label = category.charAt(0).toUpperCase() + category.slice(1);
   return { label: label || "Otro", icon: "⚡" };
 }
+
+// Snapshot de "actividad detectada" de una obra, para mostrarlo en el mapa:
+// - people: dotación más reciente (último día del log; si no hay, última captura).
+// - machines: máquinas de la captura más reciente que tenga alguna (última máquina
+//   vista en obra), agregadas por tipo con su cantidad.
+// En producción esto sale del modelo de visión sobre la última captura en vivo.
+export interface SiteSnapshot {
+  people: number;
+  machines: { label: string; icon: string; count: number }[];
+}
+
+export function siteSnapshot(project: Project): SiteSnapshot {
+  // Dotación: último día del log diario con dato; si no, última captura.
+  let people = 0;
+  const daily = project.workforce?.daily;
+  if (daily && daily.length > 0) {
+    const last = [...daily].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+    people = last?.workers ?? 0;
+  } else if (project.workforce?.captures?.length) {
+    const caps = [...project.workforce.captures].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    people = caps.at(-1)?.people ?? 0;
+  }
+
+  // Máquinas: de la captura más reciente que tenga alguna máquina detectada.
+  const machines: SiteSnapshot["machines"] = [];
+  const frames = [...(project.analysis?.frames ?? [])].sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+  const withMachine = frames.find((f) => f.machines.length > 0);
+  if (withMachine) {
+    for (const m of withMachine.machines) {
+      const cur = machines.find((x) => x.label === m.label);
+      if (cur) cur.count += m.count ?? 1;
+      else machines.push({ label: m.label, icon: m.icon, count: m.count ?? 1 });
+    }
+  }
+
+  return { people, machines };
+}

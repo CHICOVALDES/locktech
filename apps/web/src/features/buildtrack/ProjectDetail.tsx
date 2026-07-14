@@ -91,17 +91,18 @@ export function ProjectDetail({ project, onBack }: { project: Project; onBack: (
         </aside>
       </div>
 
+      {/* Análisis de cámaras (visión) — la sección más importante, va primero. */}
+      {project.analysis && <ImageAnalysisPanel analysis={project.analysis} />}
+
       {project.timelapses && project.timelapses.length > 0 && <TimelapsePanel timelapses={project.timelapses} />}
 
       {project.workforce && <WorkforcePanel workforce={project.workforce} contract={project.laborContract} />}
-
-      <ReportsPanel project={project} />
 
       {project.systems && project.systems.length > 0 && (
         <SystemsSection projectId={project.id} baseSystems={project.systems} />
       )}
 
-      {project.analysis && <ImageAnalysisPanel analysis={project.analysis} />}
+      <ReportsPanel project={project} />
     </div>
   );
 }

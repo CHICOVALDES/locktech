@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import type { RegisterInput } from "./accounts.js";
 import { useI18n } from "../../i18n/I18nProvider.js";
 import { LanguageSwitcher } from "../../i18n/LanguageSwitcher.js";
+import { BtLogo } from "../../components/BtLogo.js";
 
 interface LoginScreenProps {
   /** Devuelve un mensaje de error, o null si fue exitoso. */
@@ -19,6 +20,7 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
   const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function switchMode(next: Mode) {
@@ -45,9 +47,9 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
       </div>
       <form className="login__card" onSubmit={handleSubmit}>
         <div className="login__brand">
-          <span className="login__brand-mark">◈</span>
-          <span className="login__brand-name">BALI MOTO TRACK</span>
-          <span className="login__brand-sub">{t("login.sub")}</span>
+          <BtLogo height={38} />
+          <span className="login__brand-name">BUILD TRACKING</span>
+          <span className="login__brand-sub">Real-Time Construction Intelligence</span>
         </div>
 
         <div className="login__tabs">
@@ -120,14 +122,25 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
 
         <label className="login__field">
           <span className="login__label">{t("login.password")}</span>
-          <input
-            className="login__input"
-            type="password"
-            autoComplete={isRegister ? "new-password" : "current-password"}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="login__pass">
+            <input
+              className="login__input login__input--pass"
+              type={showPassword ? "text" : "password"}
+              autoComplete={isRegister ? "new-password" : "current-password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="login__eye"
+              onClick={() => setShowPassword((s) => !s)}
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              title={showPassword ? "Ocultar" : "Mostrar"}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
+          </div>
         </label>
 
         {error && <p className="login__error">{error}</p>}

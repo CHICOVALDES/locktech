@@ -2,20 +2,24 @@ import { useMemo, useState, type FormEvent } from "react";
 import { clientAccounts } from "../auth/accounts.js";
 import {
   ASSET_TYPES,
+  buildNvrChannelRtsp,
   buildRtspUrl,
   CAMERA_TYPES,
+  NVR_BRANDS,
   TRACKER_PROTOCOLS,
   useDevices,
   type AssetType,
   type CameraType,
+  type Nvr,
+  type NvrBrand,
   type TrackerProtocol,
 } from "./deviceStore.js";
 
-type Section = "gps" | "cameras";
+type Section = "gps" | "nvr" | "cameras";
 
 export function DeviceManager() {
   const [section, setSection] = useState<Section>("gps");
-  const { gps, cameras, addGps, removeGps, addCamera, removeCamera } = useDevices();
+  const { gps, cameras, nvrs, addGps, removeGps, addCamera, removeCamera, addNvr, removeNvr } = useDevices();
   const clients = useMemo(() => clientAccounts(), []);
   const clientLabel = (username: string) => clients.find((c) => c.username === username)?.profile.businessName ?? username;
 
@@ -27,6 +31,9 @@ export function DeviceManager() {
           <button className={`devmgr__tab ${section === "gps" ? "devmgr__tab--active" : ""}`} onClick={() => setSection("gps")}>
             GPS ({gps.length})
           </button>
+          <button className={`devmgr__tab ${section === "nvr" ? "devmgr__tab--active" : ""}`} onClick={() => setSection("nvr")}>
+            NVR ({nvrs.length})
+          </button>
           <button className={`devmgr__tab ${section === "cameras" ? "devmgr__tab--active" : ""}`} onClick={() => setSection("cameras")}>
             Cámaras ({cameras.length})
           </button>
@@ -35,7 +42,17 @@ export function DeviceManager() {
 
       {clients.length === 0 && <p className="devmgr__warn">No hay clientes registrados todavía. Registrá un rental primero.</p>}
 
-      {section === "gps" ? (
+      {section === "nvr" ? (
+        <div className="devmgr__cols">
+          <NvrForm clients={clients} onAdd={addNvr} />
+          <NvrList
+            nvrs={nvrs}
+            clientLabel={clientLabel}
+            onRemove={removeNvr}
+            onAddChannelCamera={addCamera}
+          />
+        </div>
+      ) : section === "gps" ? (
         <div className="devmgr__cols">
           <GpsForm clients={clients} onAdd={addGps} />
           <DeviceList
@@ -296,6 +313,234 @@ function CameraForm({
         Agregar cámara
       </button>
     </form>
+  );
+}
+
+/* ---------- Alta de NVR ---------- */
+
+function NvrForm({
+  clients,
+  onAdd,
+}: {
+  clients: ReturnType<typeof clientAccounts>;
+  onAdd: ReturnType<typeof useDevices>["addNvr"];
+}) {
+  const [name, setName] = useState("");
+  const [brand, setBrand] = useState<NvrBrand>("hikvision");
+  const [host, setHost] = useState("");
+  const [port, setPort] = useState(554);
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("");
+  const [channels, setChannels] = useState(8);
+  const [clientUsername, setClientUsername] = useState(clients[0]?.username ?? "");
+
+  const canSubmit = name.trim() && host.trim() && channels > 0 && clientUsername;
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!canSubmit) return;
+    onAdd({
+      name: name.trim(),
+      brand,
+      host: host.trim(),
+      port,
+      username: username.trim(),
+      password,
+      channels,
+      clientUsername,
+    });
+    setName("");
+    setHost("");
+    setPassword("");
+  }
+
+  const preview = buildNvrChannelRtsp({ brand, host: host || "IP-NVR", port, username, password, channel: 1, stream: "main" });
+
+  return (
+    <form className="devform" onSubmit={handleSubmit}>
+      <h2 className="devform__title">Agregar NVR / grabador</h2>
+
+      <label className="devform__field">
+        <span className="devform__label">Nombre / ubicación</span>
+        <input className="devform__input" placeholder="NVR Oficina" value={name} onChange={(e) => setName(e.target.value)} />
+      </label>
+
+      <label className="devform__field">
+        <span className="devform__label">Marca</span>
+        <select className="devform__input" value={brand} onChange={(e) => setBrand(e.target.value as NvrBrand)}>
+          {NVR_BRANDS.map((b) => (
+            <option key={b.id} value={b.id}>
+              {b.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="devform__row">
+        <label className="devform__field devform__field--grow">
+          <span className="devform__label">IP / host</span>
+          <input className="devform__input" placeholder="192.168.1.10" value={host} onChange={(e) => setHost(e.target.value)} />
+        </label>
+        <label className="devform__field devform__field--port">
+          <span className="devform__label">Puerto RTSP</span>
+          <input className="devform__input" type="number" value={port} onChange={(e) => setPort(Number(e.target.value))} />
+        </label>
+      </div>
+
+      <div className="devform__row">
+        <label className="devform__field devform__field--grow">
+          <span className="devform__label">Usuario</span>
+          <input className="devform__input" placeholder="admin" value={username} onChange={(e) => setUsername(e.target.value)} />
+        </label>
+        <label className="devform__field devform__field--grow">
+          <span className="devform__label">Contraseña</span>
+          <input className="devform__input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </label>
+      </div>
+
+      <label className="devform__field devform__field--port">
+        <span className="devform__label">Cantidad de canales</span>
+        <input className="devform__input" type="number" min={1} max={64} value={channels} onChange={(e) => setChannels(Number(e.target.value))} />
+      </label>
+
+      <label className="devform__field">
+        <span className="devform__label">Asignar a cliente</span>
+        <select className="devform__input" value={clientUsername} onChange={(e) => setClientUsername(e.target.value)}>
+          {clients.map((c) => (
+            <option key={c.username} value={c.username}>
+              {c.profile.businessName}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="devform__preview">
+        <span className="devform__preview-label">RTSP del canal 1 (ejemplo)</span>
+        <code className="devform__preview-url">{preview.replace(/:[^:@/]*@/, ":••••@")}</code>
+      </div>
+
+      <button className="devform__submit" type="submit" disabled={!canSubmit}>
+        Agregar NVR
+      </button>
+    </form>
+  );
+}
+
+/* ---------- Listado de NVR con canales ---------- */
+
+function NvrList({
+  nvrs,
+  clientLabel,
+  onRemove,
+  onAddChannelCamera,
+}: {
+  nvrs: Nvr[];
+  clientLabel: (username: string) => string;
+  onRemove: (id: string) => void;
+  onAddChannelCamera: ReturnType<typeof useDevices>["addCamera"];
+}) {
+  return (
+    <section className="devlist">
+      <h2 className="devlist__title">NVR dados de alta</h2>
+      {nvrs.length === 0 ? (
+        <p className="devlist__empty">Todavía no cargaste ningún grabador.</p>
+      ) : (
+        <ul className="devlist__items">
+          {nvrs.map((nvr) => (
+            <NvrCard key={nvr.id} nvr={nvr} clientLabel={clientLabel} onRemove={onRemove} onAddChannelCamera={onAddChannelCamera} />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function NvrCard({
+  nvr,
+  clientLabel,
+  onRemove,
+  onAddChannelCamera,
+}: {
+  nvr: Nvr;
+  clientLabel: (username: string) => string;
+  onRemove: (id: string) => void;
+  onAddChannelCamera: ReturnType<typeof useDevices>["addCamera"];
+}) {
+  const [open, setOpen] = useState(false);
+  const brandLabel = NVR_BRANDS.find((b) => b.id === nvr.brand)?.label ?? nvr.brand;
+  const channels = Array.from({ length: nvr.channels }, (_, i) => i + 1);
+
+  function addChannel(channel: number) {
+    const rtspUrl = buildNvrChannelRtsp({
+      brand: nvr.brand,
+      host: nvr.host,
+      port: nvr.port,
+      username: nvr.username,
+      password: nvr.password,
+      channel,
+      stream: "main",
+    });
+    onAddChannelCamera({
+      name: `${nvr.name} · Canal ${channel}`,
+      type: "rtsp",
+      host: nvr.host,
+      port: nvr.port,
+      username: nvr.username,
+      password: nvr.password,
+      channel,
+      stream: "main",
+      path: rtspUrl.replace(/^rtsp:\/\/[^/]+\//, ""),
+      rtspUrl,
+      clientUsername: nvr.clientUsername,
+    });
+  }
+
+  return (
+    <li className="devlist__item">
+      <div className="devlist__item-main">
+        <span className="devlist__item-name">{nvr.name}</span>
+        <span className="devlist__badge">{brandLabel}</span>
+      </div>
+      <span className="devlist__item-line">
+        {nvr.host}:{nvr.port} · {nvr.channels} canales
+      </span>
+      <span className="devlist__item-line">Cliente: {clientLabel(nvr.clientUsername)}</span>
+
+      <button className="devform__submit" style={{ marginTop: 8 }} onClick={() => setOpen((v) => !v)} type="button">
+        {open ? "Ocultar canales" : `Ver ${nvr.channels} canales`}
+      </button>
+
+      {open && (
+        <ul className="devlist__items" style={{ marginTop: 8 }}>
+          {channels.map((ch) => {
+            const url = buildNvrChannelRtsp({
+              brand: nvr.brand,
+              host: nvr.host,
+              port: nvr.port,
+              username: nvr.username,
+              password: nvr.password,
+              channel: ch,
+              stream: "main",
+            });
+            return (
+              <li key={ch} className="devlist__item">
+                <div className="devlist__item-main">
+                  <span className="devlist__item-name">Canal {ch}</span>
+                  <button className="devlist__badge" style={{ cursor: "pointer" }} onClick={() => addChannel(ch)} type="button">
+                    + Cámara
+                  </button>
+                </div>
+                <code className="devform__preview-url">{url.replace(/:[^:@/]*@/, ":••••@")}</code>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <button className="devlist__remove" onClick={() => onRemove(nvr.id)} aria-label="Eliminar">
+        ✕
+      </button>
+    </li>
   );
 }
 

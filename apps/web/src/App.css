@@ -1,16 +1,17 @@
 :root {
-  --page: #0d0d0d;
-  --surface: #1a1a19;
+  /* Identidad BUILD TRACKING (BT.ai): negro #111111, dorado #FFC107, grises. */
+  --page: #111111;
+  --surface: #1b1b1b;
   --text-primary: #ffffff;
-  --text-secondary: #c3c2b7;
-  --text-muted: #898781;
+  --text-secondary: #d0d0d0;
+  --text-muted: #9a9a9a;
   --gridline: #2c2c2a;
   --border: rgba(255, 255, 255, 0.1);
 
-  --racing-accent: #c41e2a; /* rojo real de BMA (Bali Motorsport Academy) */
-  --status-good: #0ca30c;
+  --racing-accent: #ffc107; /* dorado de marca BUILD TRACKING */
+  --status-good: #2fbf71;
   --status-warning: #fab219;
-  --status-critical: #d03b3b;
+  --status-critical: #e2574c;
 }
 
 * {
@@ -40,9 +41,15 @@ body {
 }
 
 .app__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   font-size: 0.95rem;
+}
+.app__logo-name {
+  font-family: "Montserrat", system-ui, sans-serif;
 }
 
 .app__header-right {
@@ -575,6 +582,31 @@ body {
   font-size: 2rem;
   color: var(--racing-accent);
   line-height: 1;
+}
+
+/* Campo de contraseña con ojo para mostrar/ocultar. */
+.login__pass {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.login__input--pass {
+  width: 100%;
+  padding-right: 2.6rem;
+}
+.login__eye {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0.3rem;
+  opacity: 0.85;
+}
+.login__eye:hover {
+  opacity: 1;
 }
 
 .login__brand-name {
@@ -2568,6 +2600,36 @@ body {
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
+}
+
+/* Fila de analítica de visión bajo el nombre: dotación + máquinas detectadas */
+.bt-map-pin__analytics {
+  order: 3;
+  margin-top: 3px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 160px;
+}
+
+.bt-map-pin__chip {
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.bt-map-pin__chip--people {
+  background: rgba(56, 189, 248, 0.92);
+  color: #05121c;
+}
+
+.bt-map-pin__chip--machine {
+  background: rgba(240, 180, 41, 0.94);
+  color: #201800;
 }
 
 .bt-map-pin__icon {
