@@ -374,11 +374,56 @@
 .lp-cam {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.8rem;
   font-size: 0.8rem;
   color: var(--lp-muted);
 }
-.lp-cam b { color: var(--lp-text); }
+.lp-cam b { color: var(--lp-text); font-size: 0.95rem; }
+.lp-cam__photo {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(247, 148, 29, 0.5);
+  background: #0d1017;
+}
+
+/* Time-lapse (video) */
+.lp-timelapse {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 1rem;
+  background: linear-gradient(150deg, var(--lp-panel-2), var(--lp-panel));
+  border: 1px solid var(--lp-line);
+  border-radius: 18px;
+  padding: 1.4rem;
+}
+.lp-timelapse__video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  background: #000;
+  object-fit: cover;
+  border: 1px solid var(--lp-line);
+}
+.lp-timelapse__title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+}
+.lp-timelapse__title em { color: var(--lp-orange); font-style: normal; }
+.lp-timelapse__desc {
+  color: var(--lp-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .lp-detect-cards { grid-template-columns: 1fr; }
+  .lp-timelapse { grid-template-columns: 1fr; }
+}
 
 /* ---- Section titles ---- */
 .lp-sec {
