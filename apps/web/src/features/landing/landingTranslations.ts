@@ -630,7 +630,28 @@ const hi: Dict = {
   footTitle: "अपनी परियोजना ट्रैक करें",
 };
 
-const LANDING: Record<Locale, Dict> = { es, en, id, ru, zh, ja, ko, hi };
+// Claves de la sección de detección con IA (cámaras autónomas + conteo + análisis).
+const DETECT: Record<Locale, Dict> = {
+  es: { secDetect: "IA que ve tu obra", live: "EN VIVO · DETECCIÓN IA", dWorkerD: "La IA cuenta al personal en cada captura", dTruckD: "Detecta y cuenta camiones que entran y salen", photoA: "Análisis de fotos", photoAD: "Máquinas, actividad y avance por imagen", camT: "Cámaras autónomas", camD: "Solar · 4G · 24/7 · resistente al clima" },
+  en: { secDetect: "AI that sees your site", live: "LIVE · AI DETECTION", dWorkerD: "AI counts workers in every capture", dTruckD: "Detects and counts trucks in and out", photoA: "Photo Analysis", photoAD: "Machines, activity and progress per image", camT: "Autonomous cameras", camD: "Solar · 4G · 24/7 · weather resistant" },
+  id: { secDetect: "AI yang melihat proyek Anda", live: "LANGSUNG · DETEKSI AI", dWorkerD: "AI menghitung pekerja di tiap tangkapan", dTruckD: "Mendeteksi dan menghitung truk keluar-masuk", photoA: "Analisis foto", photoAD: "Alat, aktivitas, dan progres per gambar", camT: "Kamera mandiri", camD: "Surya · 4G · 24/7 · tahan cuaca" },
+  ru: { secDetect: "ИИ, который видит объект", live: "В ЭФИРЕ · ИИ-ДЕТЕКЦИЯ", dWorkerD: "ИИ считает рабочих на каждом кадре", dTruckD: "Обнаруживает и считает грузовики", photoA: "Анализ фото", photoAD: "Техника, активность и прогресс по снимку", camT: "Автономные камеры", camD: "Солнце · 4G · 24/7 · погодостойкие" },
+  zh: { secDetect: "看懂工地的 AI", live: "实时 · AI 检测", dWorkerD: "AI 在每帧中统计工人", dTruckD: "检测并统计进出的卡车", photoA: "照片分析", photoAD: "每张图像的机械、活动与进度", camT: "自主摄像头", camD: "太阳能 · 4G · 全天候 · 防风雨" },
+  ja: { secDetect: "現場を見る AI", live: "ライブ · AI 検知", dWorkerD: "AI が各キャプチャで作業員を計数", dTruckD: "出入りするトラックを検知・計数", photoA: "写真分析", photoAD: "画像ごとの重機・作業・進捗", camT: "自律カメラ", camD: "ソーラー · 4G · 24時間 · 耐候" },
+  ko: { secDetect: "현장을 보는 AI", live: "실시간 · AI 감지", dWorkerD: "AI가 각 캡처에서 작업자를 계수", dTruckD: "드나드는 트럭을 감지·계수", photoA: "사진 분석", photoAD: "이미지별 장비·활동·진행", camT: "자율 카메라", camD: "태양광 · 4G · 24/7 · 내후성" },
+  hi: { secDetect: "आपकी साइट देखने वाला AI", live: "लाइव · AI डिटेक्शन", dWorkerD: "AI हर कैप्चर में श्रमिक गिनता है", dTruckD: "आते-जाते ट्रक पहचानता व गिनता है", photoA: "फ़ोटो विश्लेषण", photoAD: "हर छवि में मशीन, गतिविधि व प्रगति", camT: "स्वायत्त कैमरे", camD: "सौर · 4G · 24/7 · मौसम-रोधी" },
+};
+
+const LANDING: Record<Locale, Dict> = {
+  es: { ...es, ...DETECT.es },
+  en: { ...en, ...DETECT.en },
+  id: { ...id, ...DETECT.id },
+  ru: { ...ru, ...DETECT.ru },
+  zh: { ...zh, ...DETECT.zh },
+  ja: { ...ja, ...DETECT.ja },
+  ko: { ...ko, ...DETECT.ko },
+  hi: { ...hi, ...DETECT.hi },
+};
 
 /** Traduce una clave de la landing; cae a español y luego a la clave cruda. */
 export function landingT(locale: Locale, key: string): string {
