@@ -7,12 +7,24 @@ import { landingT } from "./landingTranslations.js";
 // Se muestra al entrar, ANTES del login. Traducida a los 8 idiomas de la
 // plataforma (usa el mismo `locale` compartido) con su propio diccionario.
 
-function LogoMark({ size = 44 }: { size?: number }) {
+// Logo oficial BUILD TRACKING: barras ascendentes (crecimiento) + monograma "BT"
+// (B plateada, T dorada), según el manual de marca (dorado #FFC107).
+function LogoMark({ height = 46 }: { height?: number }) {
   return (
-    <svg className="lp-logo" width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="BuildTracking">
-      <path d="M6 8 h13 a10 10 0 0 1 0 20 H6 Z" fill="#f7941d" />
-      <path d="M6 20 h15 a10 10 0 0 1 0 20 H6 Z" fill="#ffffff" opacity="0.92" />
-      <path d="M27 6 l15 9 v18 l-15 9 -3-2 V8 Z" fill="#f7941d" opacity="0.85" />
+    <svg className="lp-logo" height={height} viewBox="0 0 106 48" role="img" aria-label="Build Tracking">
+      <defs>
+        <linearGradient id="btSilver" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#c7c7c7" />
+        </linearGradient>
+      </defs>
+      {/* barras ascendentes */}
+      <rect x="2" y="30" width="7" height="16" rx="1" fill="url(#btSilver)" />
+      <rect x="12" y="21" width="7" height="25" rx="1" fill="url(#btSilver)" />
+      <rect x="22" y="12" width="7" height="34" rx="1" fill="url(#btSilver)" />
+      {/* monograma BT */}
+      <text x="34" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="44" fill="url(#btSilver)">B</text>
+      <text x="72" y="40" fontFamily="Montserrat, sans-serif" fontWeight="800" fontSize="44" fill="#ffc107">T</text>
     </svg>
   );
 }
