@@ -1,22 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { TimelapseBreakdown, TimelapseSegment } from "@bali-moto-track/shared-types";
 import { perfStatusLabel } from "./helpers.js";
 
 type Grain = "monthly" | "weekly";
 
 // Panel del time-lapse real de la obra: selector de ángulo/cámara (si hay más de
-// uno) + reproductor + desglose de rendimiento por mes o semana, con el estado de
-// cada período (para contar el caso de la obra). Ver docs/buildtrack-prd.md §6.
+// uno) + medio (video en la vista mensual; FOTO de la semana en la vista semanal) +
+// desglose de rendimiento por mes o semana con el estado de cada período. Mostrar la
+// foto de la semana es más confiable que reproducir un clip. Ver docs/buildtrack-prd.md §6.
 export function TimelapsePanel({ timelapses }: { timelapses: TimelapseBreakdown[] }) {
   const [angleIdx, setAngleIdx] = useState(0);
   const [grain, setGrain] = useState<Grain>("monthly");
+  const [weekId, setWeekId] = useState<string | null>(null);
 
   const timelapse = timelapses[Math.min(angleIdx, timelapses.length - 1)];
+  const segments = grain === "monthly" ? timelapse?.monthly ?? [] : timelapse?.weekly ?? [];
+
+  // En vista semanal, seleccionar la primera semana por defecto (para mostrar su foto).
+  useEffect(() => {
+    if (grain === "weekly") setWeekId((cur) => cur ?? timelapse?.weekly[0]?.id ?? null);
+    else setWeekId(null);
+  }, [grain, angleIdx, timelapse]);
+
   if (!timelapse) return null;
 
-  const segments = grain === "monthly" ? timelapse.monthly : timelapse.weekly;
   const maxPct = Math.max(...segments.map((s) => s.progressPct), 1);
   const best = segments.reduce((a, b) => (b.progressPct > a.progressPct ? b : a), segments[0]);
+  const weekSeg = grain === "weekly" ? segments.find((s) => s.id === weekId) ?? segments[0] : null;
 
   return (
     <section className="bt-tl">
@@ -47,14 +57,24 @@ export function TimelapsePanel({ timelapses }: { timelapses: TimelapseBreakdown[
         </div>
       )}
 
-      <video
-        key={timelapse.videoUrl}
-        className="bt-tl__video"
-        src={timelapse.videoUrl}
-        controls
-        preload="metadata"
-        playsInline
-      />
+      {/* Medio: foto de la semana (vista semanal) o video (vista mensual) */}
+      {weekSeg?.image ? (
+        <figure className="bt-tl__weekphoto">
+          <img src={weekSeg.image} alt={`${weekSeg.label} — ${weekSeg.period}`} />
+          <figcaption className="bt-tl__weekphoto-cap">
+            📷 {weekSeg.label} · {weekSeg.period}
+          </figcaption>
+        </figure>
+      ) : (
+        <video
+          key={timelapse.videoUrl}
+          className="bt-tl__video"
+          src={timelapse.videoUrl}
+          controls
+          preload="metadata"
+          playsInline
+        />
+      )}
 
       <div className="bt-tl__breakdown">
         <div className="bt-tl__toggle">
@@ -74,11 +94,19 @@ export function TimelapsePanel({ timelapses }: { timelapses: TimelapseBreakdown[
 
         <ul className="bt-tl__list">
           {segments.map((seg) => (
-            <SegmentRow key={seg.id} segment={seg} widthPct={(seg.progressPct / maxPct) * 100} isBest={seg.id === best?.id} />
+            <SegmentRow
+              key={seg.id}
+              segment={seg}
+              widthPct={(seg.progressPct / maxPct) * 100}
+              isBest={seg.id === best?.id}
+              isSelected={grain === "weekly" && seg.id === weekSeg?.id}
+              onSelect={grain === "weekly" && seg.image ? () => setWeekId(seg.id) : undefined}
+            />
           ))}
         </ul>
 
         <p className="bt-tl__hint">
+          {grain === "weekly" ? "📷 Tocá una semana para ver su foto. " : ""}
           Mejor {grain === "monthly" ? "mes" : "semana"}: <strong>{best?.label}</strong> (+{best?.progressPct}%)
           {best?.note ? ` — ${best.note}.` : "."}
         </p>
@@ -87,10 +115,26 @@ export function TimelapsePanel({ timelapses }: { timelapses: TimelapseBreakdown[
   );
 }
 
-function SegmentRow({ segment, widthPct, isBest }: { segment: TimelapseSegment; widthPct: number; isBest: boolean }) {
+function SegmentRow({
+  segment,
+  widthPct,
+  isBest,
+  isSelected,
+  onSelect,
+}: {
+  segment: TimelapseSegment;
+  widthPct: number;
+  isBest: boolean;
+  isSelected: boolean;
+  onSelect?: () => void;
+}) {
   return (
-    <li className={`bt-seg bt-seg--${segment.status} ${isBest ? "bt-seg--best" : ""}`}>
+    <li
+      className={`bt-seg bt-seg--${segment.status} ${isBest ? "bt-seg--best" : ""} ${isSelected ? "bt-seg--selected" : ""} ${onSelect ? "bt-seg--clickable" : ""}`}
+      onClick={onSelect}
+    >
       <div className="bt-seg__head">
+        {onSelect && <span className="bt-seg__cam">{isSelected ? "📷" : "▸"}</span>}
         <span className="bt-seg__label">{segment.label}</span>
         <span className="bt-seg__period">{segment.period}</span>
         <span className={`bt-pill bt-pill--perf-${segment.status}`}>{perfStatusLabel(segment.status)}</span>

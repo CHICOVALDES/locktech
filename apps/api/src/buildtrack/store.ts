@@ -1,4 +1,5 @@
 import type {
+  LaborContract,
   Milestone,
   MilestoneName,
   MilestoneStatus,
@@ -6,6 +7,9 @@ import type {
   ProjectReport,
   TimelapseBreakdown,
 } from "@bali-moto-track/shared-types";
+import { SYSTEMS_BY_PROJECT } from "./systems.js";
+import { WORKFORCE_BY_PROJECT } from "./workforce.js";
+import { ANALYSIS_BY_PROJECT } from "./analysis.js";
 
 // Store in-memory de BuildTrack (Construction Intelligence). Primer slice = demo:
 // obras sembradas a mano, sin base de datos (se reinician al arrancar). Cuando
@@ -99,7 +103,7 @@ const UBUD_TIMELAPSE: TimelapseBreakdown = {
     { id: "u-may", label: "Mayo", period: "1–31 may", progressPct: 10, status: "on_track", note: "Revoques y contrapisos" },
     { id: "u-jun", label: "Junio", period: "1–30 jun", progressPct: 11, status: "on_track", note: "Carpinterías y aberturas" },
     { id: "u-jul", label: "Julio", period: "1–31 jul", progressPct: 9, status: "on_track", note: "Terminaciones interiores" },
-    { id: "u-ago", label: "Agosto", period: "1–31 ago", progressPct: 8, status: "on_track", note: "Paisajismo y estanque natural" },
+    { id: "u-ago", label: "Agosto", period: "1–31 ago", progressPct: 8, status: "on_track", note: "Paisajismo, deck y borde de piscina" },
   ],
   weekly: [
     { id: "uw-27", label: "Semana 27", period: "29 jun–5 jul", progressPct: 2.3, status: "on_track", note: "Pisos de madera" },
@@ -130,6 +134,24 @@ const UBUD_POOL_TIMELAPSE: TimelapseBreakdown = {
   ],
 };
 
+// Asigna a cada semana su fragmento de video y la FOTO representativa de esa semana
+// (frame extraído del time-lapse en `public/images/tlweek-<key>-w<i>.jpg`). Mostrar la
+// foto de la semana es más confiable que reproducir el clip (el seek en time-lapse
+// queda en negro). `key` = base de las fotos de esa cámara.
+function addWeeklyClips(tl: TimelapseBreakdown, durationSec: number, key: string): void {
+  const n = tl.weekly.length;
+  if (n === 0) return;
+  const slice = durationSec / n;
+  tl.weekly.forEach((w, i) => {
+    w.clip = [Number((i * slice).toFixed(2)), Number(((i + 1) * slice).toFixed(2))];
+    w.image = `/images/tlweek-${key}-w${i + 1}.jpg`;
+  });
+}
+addWeeklyClips(ULUWATU_TIMELAPSE, 47.68, "crane");
+addWeeklyClips(CANGGU_TIMELAPSE, 40.07, "seaside");
+addWeeklyClips(UBUD_TIMELAPSE, 41.11, "temple");
+addWeeklyClips(UBUD_POOL_TIMELAPSE, 40.11, "pool");
+
 const ULUWATU_REPORTS: ProjectReport[] = [
   {
     id: "r-ulu-jun",
@@ -147,6 +169,7 @@ const ULUWATU_REPORTS: ProjectReport[] = [
       "Se recupera parte del atraso acumulado en la estructura",
       "Riesgo: impermeabilización pendiente antes de la próxima lluvia",
     ],
+    workers: 12,
   },
   {
     id: "r-ulu-s25",
@@ -158,6 +181,7 @@ const ULUWATU_REPORTS: ProjectReport[] = [
     status: "on_track",
     summary: "Trabajos internos ya protegidos por el techo. La obra vuelve a estar en ritmo respecto al plan.",
     highlights: ["Inicio de instalaciones MEP", "Sin lluvias que afecten avance", "Cuadrilla completa en sitio"],
+    workers: 14,
   },
 ];
 
@@ -178,6 +202,7 @@ const CANGGU_REPORTS: ProjectReport[] = [
       "Permiso de fundación en trámite",
       "Acción: bombeo permanente + reprogramación de hormigón",
     ],
+    workers: 6,
   },
   {
     id: "r-can-s30",
@@ -189,6 +214,7 @@ const CANGGU_REPORTS: ProjectReport[] = [
     status: "recovering",
     summary: "Permiso aprobado y agua controlada. Se hormigonaron las primeras zapatas; la obra empieza a recuperar.",
     highlights: ["Permiso de fundación aprobado", "Hormigón de zapatas iniciado", "Bombas operativas 24/7"],
+    workers: 8,
   },
 ];
 
@@ -202,13 +228,14 @@ const UBUD_REPORTS: ProjectReport[] = [
     progressPct: 79,
     status: "on_track",
     summary:
-      "Obra en ritmo y cerca de la entrega. Avanzan las terminaciones interiores y arranca el paisajismo junto al río.",
+      "Obra en ritmo y cerca de la entrega. Avanzan las terminaciones interiores y arranca el paisajismo y el deck sobre el mar.",
     highlights: [
       "Rendimiento del mes: +9%, en línea con el plan",
       "Terminaciones interiores al 80%",
-      "Inicio de deck y estanque natural",
+      "Inicio de deck y borde de piscina infinity",
       "Proyección de entrega dentro de fecha",
     ],
+    workers: 18,
   },
   {
     id: "r-ubu-s29",
@@ -220,8 +247,50 @@ const UBUD_REPORTS: ProjectReport[] = [
     status: "on_track",
     summary: "Colocación de pisos de madera y grifería. Comienza el jardín y el deck exterior.",
     highlights: ["Pisos de madera colocados", "Grifería y sanitarios instalados", "Paisajismo en marcha"],
+    workers: 20,
   },
 ];
+
+// Contratos de mano de obra por obra (modalidad "por contrato"): total + pagos
+// atados a hitos. El estado (pagado/en curso/pendiente) sigue el avance real de cada
+// obra. Montos en IDR. La obra demorada (Canggu) tiene casi todo pendiente.
+const LABOR_CONTRACTS: Record<string, LaborContract> = {
+  "villa-ubud": {
+    total: 850_000_000,
+    milestones: [
+      { name: "Anticipo / movilización", pct: 10, amount: 85_000_000, status: "paid" },
+      { name: "Fundaciones", pct: 15, amount: 127_500_000, status: "paid" },
+      { name: "Estructura", pct: 20, amount: 170_000_000, status: "paid" },
+      { name: "Cubierta / techo", pct: 15, amount: 127_500_000, status: "paid" },
+      { name: "Instalaciones (MEP)", pct: 15, amount: 127_500_000, status: "in_progress" },
+      { name: "Terminaciones", pct: 15, amount: 127_500_000, status: "pending" },
+      { name: "Entrega final", pct: 10, amount: 85_000_000, status: "pending" },
+    ],
+  },
+  "villa-uluwatu": {
+    total: 650_000_000,
+    milestones: [
+      { name: "Anticipo / movilización", pct: 10, amount: 65_000_000, status: "paid" },
+      { name: "Fundaciones", pct: 15, amount: 97_500_000, status: "paid" },
+      { name: "Estructura", pct: 20, amount: 130_000_000, status: "paid" },
+      { name: "Cubierta / techo", pct: 15, amount: 97_500_000, status: "in_progress" },
+      { name: "Instalaciones (MEP)", pct: 15, amount: 97_500_000, status: "pending" },
+      { name: "Terminaciones", pct: 15, amount: 97_500_000, status: "pending" },
+      { name: "Entrega final", pct: 10, amount: 65_000_000, status: "pending" },
+    ],
+  },
+  "villa-canggu": {
+    total: 220_000_000,
+    milestones: [
+      { name: "Anticipo / movilización", pct: 10, amount: 22_000_000, status: "paid" },
+      { name: "Fundaciones", pct: 20, amount: 44_000_000, status: "in_progress" },
+      { name: "Estructura de bambú", pct: 25, amount: 55_000_000, status: "pending" },
+      { name: "Cubierta", pct: 15, amount: 33_000_000, status: "pending" },
+      { name: "Terminaciones", pct: 20, amount: 44_000_000, status: "pending" },
+      { name: "Entrega final", pct: 10, amount: 22_000_000, status: "pending" },
+    ],
+  },
+};
 
 // Galería de una villa: los 4 frames extraídos del time-lapse (progresión de obra).
 function gallery(id: string): string[] {
@@ -232,13 +301,13 @@ const projects: Project[] = [
   {
     id: "villa-uluwatu",
     name: "Hotel Cliff Pantay Nany",
-    address: "Jl. Pantai Nyang Nyang, Uluwatu, Bali",
-    latitude: -8.8340025,
-    longitude: 115.0940163,
+    address: "Pantai Kedungu, Beraban, Tabanan, Bali",
+    latitude: -8.630434,
+    longitude: 115.095097,
     startDate: "2026-02-01",
     estimatedCompletion: "2026-11-30",
     clientName: "Coastal Estates Ltd.",
-    description: "Villa de 4 habitaciones sobre acantilado con piscina infinity y vista al mar.",
+    description: "Hotel boutique frente al mar en Kedungu: habitaciones, restaurante y piscina infinity sobre la costa.",
     status: "active",
     icon: "🏨",
     currentImageUrl: "/images/villa-uluwatu-4.jpg",
@@ -246,6 +315,10 @@ const projects: Project[] = [
     milestones: buildMilestones(4), // trabajando en Roofing
     timelapses: [ULUWATU_TIMELAPSE],
     reports: ULUWATU_REPORTS,
+    systems: SYSTEMS_BY_PROJECT["villa-uluwatu"],
+    workforce: WORKFORCE_BY_PROJECT["villa-uluwatu"],
+    laborContract: LABOR_CONTRACTS["villa-uluwatu"],
+    analysis: ANALYSIS_BY_PROJECT["villa-uluwatu"],
   },
   {
     id: "villa-canggu",
@@ -256,7 +329,7 @@ const projects: Project[] = [
     startDate: "2026-05-15",
     estimatedCompletion: "2027-01-20",
     clientName: "Made Rai Development",
-    description: "Complejo de 3 villas tropicales con jardín central y coworking.",
+    description: "Complejo de villas de bambú con domo central y jardín tropical (construcción en bambú).",
     status: "delayed",
     icon: "🏗️",
     currentImageUrl: "/images/villa-canggu-4.jpg",
@@ -264,17 +337,21 @@ const projects: Project[] = [
     milestones: buildMilestones(2, "Foundation"), // Foundation demorada
     timelapses: [CANGGU_TIMELAPSE],
     reports: CANGGU_REPORTS,
+    systems: SYSTEMS_BY_PROJECT["villa-canggu"],
+    workforce: WORKFORCE_BY_PROJECT["villa-canggu"],
+    laborContract: LABOR_CONTRACTS["villa-canggu"],
+    analysis: ANALYSIS_BY_PROJECT["villa-canggu"],
   },
   {
     id: "villa-ubud",
     name: "Luna Beach Club",
-    address: "Jl. Kayangan, Beraban, Tabanan, Bali",
-    latitude: -8.6296694,
-    longitude: 115.0942149,
+    address: "Jl. Kayangan, Nyanyi Beach, Beraban, Tabanan, Bali",
+    latitude: -8.6216,
+    longitude: 115.0838,
     startDate: "2025-09-01",
     estimatedCompletion: "2026-08-15",
-    clientName: "Green Valley Investors",
-    description: "Villa de retiro junto al río con estudio de yoga y estanque natural.",
+    clientName: "Nuanu Coastal Developments",
+    description: "Beach club frente al mar: piscina infinity, bar, restaurante y deck sobre el acantilado.",
     status: "active",
     icon: "🏖️",
     currentImageUrl: "/images/villa-ubud-4.jpg",
@@ -282,6 +359,10 @@ const projects: Project[] = [
     milestones: buildMilestones(7), // en Landscaping, casi terminada
     timelapses: [UBUD_TIMELAPSE, UBUD_POOL_TIMELAPSE],
     reports: UBUD_REPORTS,
+    systems: SYSTEMS_BY_PROJECT["villa-ubud"],
+    workforce: WORKFORCE_BY_PROJECT["villa-ubud"],
+    laborContract: LABOR_CONTRACTS["villa-ubud"],
+    analysis: ANALYSIS_BY_PROJECT["villa-ubud"],
   },
 ];
 

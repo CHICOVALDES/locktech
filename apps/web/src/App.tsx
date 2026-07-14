@@ -15,10 +15,13 @@ import { AdminFleet } from "./features/admin/AdminFleet.js";
 import { DeviceManager } from "./features/admin/DeviceManager.js";
 import { UserManager } from "./features/admin/UserManager.js";
 import { ObrasDashboard } from "./features/buildtrack/ObrasDashboard.js";
+import { LanguageSwitcher } from "./i18n/LanguageSwitcher.js";
+import { useI18n } from "./i18n/I18nProvider.js";
 
 type View = "flota" | "usuarios" | "dispositivos" | "tracking" | "checkin" | "registros" | "camaras" | "recovery" | "obras";
 
 export function App() {
+  const { t } = useI18n();
   const { account, login, register, logout } = useAuth();
   // Fuente de datos: "demo" = motos simuladas; "live" = GPS real vía Traccar.
   const [source, setSource] = useState<"demo" | "live">("demo");
@@ -75,27 +78,27 @@ export function App() {
         <nav className="app__nav">
           {isAdmin && (
             <button className={`app__nav-btn ${view === "flota" ? "app__nav-btn--active" : ""}`} onClick={() => setView("flota")}>
-              Flota
+              {t("nav.fleet")}
             </button>
           )}
           {isAdmin && (
             <button className={`app__nav-btn ${view === "usuarios" ? "app__nav-btn--active" : ""}`} onClick={() => setView("usuarios")}>
-              Usuarios
+              {t("nav.users")}
             </button>
           )}
           {isAdmin && (
             <button className={`app__nav-btn ${view === "dispositivos" ? "app__nav-btn--active" : ""}`} onClick={() => setView("dispositivos")}>
-              Equipos
+              {t("nav.devices")}
             </button>
           )}
           <button className={`app__nav-btn ${view === "tracking" ? "app__nav-btn--active" : ""}`} onClick={() => setView("tracking")}>
-            Tracking
+            {t("nav.tracking")}
           </button>
           <button className={`app__nav-btn ${view === "checkin" ? "app__nav-btn--active" : ""}`} onClick={() => setView("checkin")}>
-            BMA Check-in
+            {t("nav.checkin")}
           </button>
           <button className={`app__nav-btn ${view === "registros" ? "app__nav-btn--active" : ""}`} onClick={() => setView("registros")}>
-            Registros
+            {t("nav.records")}
           </button>
           {/* Herramientas de "la Casa" — aparecen al seleccionar la casa en Tracking.
               La casa es la puerta de entrada a BuildTrack (monitoreo de obras). */}
@@ -106,13 +109,13 @@ export function App() {
                 className={`app__nav-btn app__nav-btn--bt ${view === "obras" ? "app__nav-btn--active" : ""}`}
                 onClick={() => setView("obras")}
               >
-                BuildTrack
+                {t("nav.buildtrack")}
               </button>
               <button className={`app__nav-btn ${view === "camaras" ? "app__nav-btn--active" : ""}`} onClick={() => setView("camaras")}>
-                Cámaras
+                {t("nav.cameras")}
               </button>
               <button className={`app__nav-btn ${view === "recovery" ? "app__nav-btn--active" : ""}`} onClick={() => setView("recovery")}>
-                Recovery
+                {t("nav.recovery")}
               </button>
             </>
           )}
@@ -123,29 +126,30 @@ export function App() {
               <button
                 className="app__nav-btn"
                 onClick={() => setSource((s) => (s === "demo" ? "live" : "demo"))}
-                title="Cambiar entre motos simuladas y GPS real (Traccar)"
+                title={t("header.sourceTitle")}
               >
-                {source === "live" ? "Fuente: GPS real" : "Fuente: Demo"}
+                {source === "live" ? t("header.sourceReal") : t("header.sourceDemo")}
               </button>
               <span className={`app__status app__status--${status}`}>
                 {status === "open"
                   ? source === "live"
-                    ? "● EN VIVO (real)"
-                    : "● EN VIVO (demo)"
+                    ? t("status.liveReal")
+                    : t("status.liveDemo")
                   : status === "connecting"
-                    ? "○ CONECTANDO..."
-                    : "○ DESCONECTADO"}
+                    ? t("status.connecting")
+                    : t("status.disconnected")}
               </span>
             </>
           )}
           <div className="app__client">
             <span className="app__client-name">{account.profile.businessName}</span>
             <span className="app__client-meta">
-              {account.profile.plan} · {myVehicles.length} disp.
+              {account.profile.plan} · {myVehicles.length} {t("header.devicesShort")}
             </span>
           </div>
+          <LanguageSwitcher />
           <button className="app__logout" onClick={logout}>
-            Salir
+            {t("header.logout")}
           </button>
         </div>
       </header>

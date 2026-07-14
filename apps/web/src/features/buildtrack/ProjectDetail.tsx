@@ -2,7 +2,10 @@ import { useState } from "react";
 import type { Project } from "@bali-moto-track/shared-types";
 import { daysElapsed, daysRemaining, milestoneStatusLabel, projectProgress, projectStatusLabel } from "./helpers.js";
 import { TimelapsePanel } from "./TimelapsePanel.js";
+import { WorkforcePanel } from "./WorkforcePanel.js";
 import { ReportsPanel } from "./ReportsPanel.js";
+import { SystemsSection } from "./SystemsSection.js";
+import { ImageAnalysisPanel } from "./ImageAnalysisPanel.js";
 
 const DATE_FMT: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" };
 
@@ -90,7 +93,15 @@ export function ProjectDetail({ project, onBack }: { project: Project; onBack: (
 
       {project.timelapses && project.timelapses.length > 0 && <TimelapsePanel timelapses={project.timelapses} />}
 
+      {project.workforce && <WorkforcePanel workforce={project.workforce} contract={project.laborContract} />}
+
       <ReportsPanel project={project} />
+
+      {project.systems && project.systems.length > 0 && (
+        <SystemsSection projectId={project.id} baseSystems={project.systems} />
+      )}
+
+      {project.analysis && <ImageAnalysisPanel analysis={project.analysis} />}
     </div>
   );
 }

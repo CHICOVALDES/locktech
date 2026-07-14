@@ -10,3 +10,5 @@ infra/traccar-data/
 # Capturas del time-lapse Recovery (se generan en runtime)
 apps/web/public/timelapse/
 tunnel.log
+
+.vercel

@@ -1,4 +1,11 @@
-import type { MilestoneStatus, PerfStatus, Project, ProjectStatus } from "@bali-moto-track/shared-types";
+import type {
+  ElectricalPhaseStatus,
+  KnownCategory,
+  MilestoneStatus,
+  PerfStatus,
+  Project,
+  ProjectStatus,
+} from "@bali-moto-track/shared-types";
 
 // Helpers puros de BuildTrack: cálculo de avance a partir de hitos, días
 // transcurridos/restantes y etiquetas/colores de estado para la UI.
@@ -64,4 +71,58 @@ const PERF_STATUS_LABEL: Record<PerfStatus, string> = {
 
 export function perfStatusLabel(status: PerfStatus): string {
   return PERF_STATUS_LABEL[status];
+}
+
+const ELECTRICAL_PHASE_LABEL: Record<ElectricalPhaseStatus, string> = {
+  completed: "Completada",
+  in_progress: "En progreso",
+  pending: "Pendiente",
+};
+
+export function electricalPhaseLabel(status: ElectricalPhaseStatus): string {
+  return ELECTRICAL_PHASE_LABEL[status];
+}
+
+// Etiqueta + emoji de cada categoría conocida (para filtros y chips). Estas son las
+// sugeridas; la empresa puede además escribir categorías propias (ver fallback).
+const COMPONENT_CATEGORY: Record<KnownCategory, { label: string; icon: string }> = {
+  panel: { label: "Tableros", icon: "🔌" },
+  box: { label: "Cajas eléctricas", icon: "📦" },
+  circuit: { label: "Circuitos", icon: "➰" },
+  switch: { label: "Llaves", icon: "🎚️" },
+  outlet: { label: "Tomas", icon: "🔲" },
+  lighting: { label: "Iluminación", icon: "💡" },
+  equipment: { label: "Equipos", icon: "⚙️" },
+};
+
+export const KNOWN_CATEGORIES = Object.keys(COMPONENT_CATEGORY) as KnownCategory[];
+
+// Devuelve ícono + etiqueta de una categoría. Para categorías conocidas usa el mapa;
+// para una categoría custom cargada por la empresa, capitaliza el texto y usa ⚡.
+// Jornal por trabajador por día (IDR). Base del estimativo de mano de obra.
+export const WAGE_IDR_PER_DAY = 140000;
+
+const idrFmt = new Intl.NumberFormat("es", { maximumFractionDigits: 0 });
+
+// Formatea un monto en rupias indonesias, ej. "Rp 1.960.000".
+export function formatIdr(amount: number): string {
+  return `Rp ${idrFmt.format(Math.round(amount))}`;
+}
+
+// Extrae la potencia en kW de un texto de carga ("2.2 kW", "800 W", "1,5 kw").
+// Devuelve 0 si no hay número reconocible. Usado por el resumen de consumo.
+export function parseKw(load?: string): number {
+  if (!load) return 0;
+  const m = load.replace(",", ".").match(/([\d.]+)\s*(kw|w)?/i);
+  if (!m) return 0;
+  const value = parseFloat(m[1]);
+  if (!Number.isFinite(value)) return 0;
+  return (m[2] ?? "kw").toLowerCase() === "w" ? value / 1000 : value;
+}
+
+export function componentCategoryMeta(category: string): { label: string; icon: string } {
+  const known = COMPONENT_CATEGORY[category as KnownCategory];
+  if (known) return known;
+  const label = category.charAt(0).toUpperCase() + category.slice(1);
+  return { label: label || "Otro", icon: "⚡" };
 }

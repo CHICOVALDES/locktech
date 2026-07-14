@@ -28,7 +28,7 @@ export function ObrasDashboard() {
           <BuildTrackLogo />
           <div>
             <h1 className="bt__title">BuildTrack</h1>
-            <p className="bt__subtitle">Construction Intelligence · Monitoreo remoto de obras</p>
+            <p className="bt__subtitle">Construction Intelligence · Monitoreo remoto de obras · build v14 ✅</p>
           </div>
         </div>
         <div className="bt__kpis">

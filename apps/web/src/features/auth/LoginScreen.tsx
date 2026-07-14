@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { RegisterInput } from "./accounts.js";
+import { useI18n } from "../../i18n/I18nProvider.js";
+import { LanguageSwitcher } from "../../i18n/LanguageSwitcher.js";
 
 interface LoginScreenProps {
   /** Devuelve un mensaje de error, o null si fue exitoso. */
@@ -10,6 +12,7 @@ interface LoginScreenProps {
 type Mode = "login" | "register";
 
 export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
+  const { t } = useI18n();
   const [mode, setMode] = useState<Mode>("login");
   const [businessName, setBusinessName] = useState("");
   const [contactName, setContactName] = useState("");
@@ -37,11 +40,14 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
 
   return (
     <div className="login">
+      <div className="login__topbar">
+        <LanguageSwitcher />
+      </div>
       <form className="login__card" onSubmit={handleSubmit}>
         <div className="login__brand">
           <span className="login__brand-mark">◈</span>
           <span className="login__brand-name">BALI MOTO TRACK</span>
-          <span className="login__brand-sub">Seguridad antirrobo · GPS en vivo</span>
+          <span className="login__brand-sub">{t("login.sub")}</span>
         </div>
 
         <div className="login__tabs">
@@ -50,21 +56,21 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
             className={`login__tab ${!isRegister ? "login__tab--active" : ""}`}
             onClick={() => switchMode("login")}
           >
-            Ingresar
+            {t("login.tabLogin")}
           </button>
           <button
             type="button"
             className={`login__tab ${isRegister ? "login__tab--active" : ""}`}
             onClick={() => switchMode("register")}
           >
-            Registrarse
+            {t("login.tabRegister")}
           </button>
         </div>
 
         {isRegister && (
           <>
             <label className="login__field">
-              <span className="login__label">Nombre del rental / negocio</span>
+              <span className="login__label">{t("login.businessName")}</span>
               <input
                 className="login__input"
                 type="text"
@@ -76,18 +82,18 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
             </label>
 
             <label className="login__field">
-              <span className="login__label">Contacto</span>
+              <span className="login__label">{t("login.contact")}</span>
               <input
                 className="login__input"
                 type="text"
-                placeholder="Tu nombre"
+                placeholder={t("login.phContact")}
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
               />
             </label>
 
             <label className="login__field">
-              <span className="login__label">Teléfono / WhatsApp</span>
+              <span className="login__label">{t("login.phone")}</span>
               <input
                 className="login__input"
                 type="tel"
@@ -100,7 +106,7 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
         )}
 
         <label className="login__field">
-          <span className="login__label">Usuario</span>
+          <span className="login__label">{t("login.username")}</span>
           <input
             className="login__input"
             type="text"
@@ -113,7 +119,7 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
         </label>
 
         <label className="login__field">
-          <span className="login__label">Contraseña</span>
+          <span className="login__label">{t("login.password")}</span>
           <input
             className="login__input"
             type="password"
@@ -127,24 +133,24 @@ export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
         {error && <p className="login__error">{error}</p>}
 
         <button className="login__submit" type="submit" disabled={!canSubmit}>
-          {isRegister ? "Crear cuenta" : "Ingresar"}
+          {isRegister ? t("login.submitRegister") : t("login.tabLogin")}
         </button>
 
         {isRegister ? (
           <p className="login__hint">
-            ¿Ya tenés cuenta?{" "}
+            {t("login.haveAccountQ")}{" "}
             <button type="button" className="login__link" onClick={() => switchMode("login")}>
-              Ingresar
+              {t("login.tabLogin")}
             </button>
           </p>
         ) : (
           <p className="login__hint">
-            ¿Nuevo rental?{" "}
+            {t("login.newRentalQ")}{" "}
             <button type="button" className="login__link" onClick={() => switchMode("register")}>
-              Registrate
+              {t("login.registerLink")}
             </button>
             <br />
-            Demo: <code>mrrental</code> / <code>bali123</code> · <code>admin</code> / <code>admin</code>
+            {t("login.demo")} <code>mrrental</code> / <code>bali123</code> · <code>admin</code> / <code>admin</code>
           </p>
         )}
       </form>

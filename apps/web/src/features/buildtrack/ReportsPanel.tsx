@@ -1,6 +1,13 @@
 import { useState } from "react";
 import type { Project, ProjectReport } from "@bali-moto-track/shared-types";
-import { perfStatusLabel } from "./helpers.js";
+import { formatIdr, perfStatusLabel, WAGE_IDR_PER_DAY } from "./helpers.js";
+
+// Días laborables por tipo de reporte, para el costo de mano de obra del período.
+const WORK_DAYS: Record<ProjectReport["type"], number> = { weekly: 6, monthly: 26 };
+
+function laborCost(report: ProjectReport): number {
+  return (report.workers ?? 0) * WAGE_IDR_PER_DAY * WORK_DAYS[report.type];
+}
 
 // Panel de reportes de avance (PRD §7): lista los reportes generados, permite
 // abrir el detalle y descargar cada uno como HTML imprimible (Ctrl+P → PDF).
@@ -60,6 +67,16 @@ function ReportRow({
               <li key={i}>{h}</li>
             ))}
           </ul>
+          {report.workers != null && (
+            <div className="bt-rep-item__labor">
+              <span>
+                👷 <strong>{report.workers}</strong> trabajadores (prom.)
+              </span>
+              <span>
+                💰 Mano de obra del período: <strong>{formatIdr(laborCost(report))}</strong>
+              </span>
+            </div>
+          )}
           <div className="bt-rep-item__footer">
             <span className="bt-rep-item__gen">
               Generado el {new Date(report.generatedAt).toLocaleDateString("es", { day: "2-digit", month: "long", year: "numeric" })}
@@ -101,6 +118,12 @@ function downloadReport(project: Project, report: ProjectReport) {
     <div><div class="k">Período</div><div class="v">${esc(report.period)}</div></div>
     <div><div class="k">Avance</div><div class="v">${report.progressPct}%</div></div>
     <div><div class="k">Estado</div><div class="v">${perfStatusLabel(report.status)}</div></div>
+    ${
+      report.workers != null
+        ? `<div><div class="k">Trabajadores (prom.)</div><div class="v">${report.workers}</div></div>
+    <div><div class="k">Mano de obra</div><div class="v">${formatIdr(laborCost(report))}</div></div>`
+        : ""
+    }
   </div>
   <h2>Resumen</h2><p>${esc(report.summary)}</p>
   <h2>Puntos destacados</h2><ul>${highlights}</ul>
