@@ -24,7 +24,10 @@ export function CameraPreview({ url, onStatus }: { url: string; onStatus?: (ok: 
     if (!video) return;
     setStatus("loading");
     let hls: Hls | null = null;
-    const timeout = window.setTimeout(() => setStatus((s) => (s === "loading" ? "error" : s)), 12000);
+    let retries = 0;
+    // El transcode (go2rtc/ffmpeg) arranca on-demand y tarda unos segundos: damos
+    // tiempo y reintentamos ante errores de red antes de rendirnos.
+    const timeout = window.setTimeout(() => setStatus((s) => (s === "loading" ? "error" : s)), 30000);
 
     function ok() {
       window.clearTimeout(timeout);
@@ -38,12 +41,21 @@ export function CameraPreview({ url, onStatus }: { url: string; onStatus?: (ok: 
     }
 
     if (Hls.isSupported()) {
-      hls = new Hls({ lowLatencyMode: true });
+      hls = new Hls({ lowLatencyMode: true, manifestLoadingMaxRetry: 8, levelLoadingMaxRetry: 8, fragLoadingMaxRetry: 8 });
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => void video.play().then(ok).catch(ok));
+      hls.on(Hls.Events.FRAG_BUFFERED, ok); // hay video real -> OK
       hls.on(Hls.Events.ERROR, (_e, data) => {
-        if (data.fatal) fail();
+        if (!data.fatal || !hls) return;
+        // Arranque en frío del stream: reintentar en vez de fallar.
+        if (retries < 6) {
+          retries++;
+          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+          else window.setTimeout(() => hls && hls.startLoad(), 2500);
+        } else {
+          fail();
+        }
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       // Safari: HLS nativo
