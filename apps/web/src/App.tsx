@@ -70,6 +70,8 @@ export function App() {
   // seleccionar la casa en Tracking, o siempre para clientes sin motos (ej. el
   // restaurante La Parada, que es solo monitoreo por cámara).
   const showHouseTools = cameraTarget === "home" || (!isAdmin && account.devices.length === 0);
+  // Tracking / Check-in / Registros solo para clientes que tienen motos/GPS.
+  const clientHasMotos = !isAdmin && account.devices.length > 0;
 
   function updateCustomization(next: VehicleCustomization) {
     if (!activeVehicleId) return;
@@ -111,9 +113,10 @@ export function App() {
               {t("nav.devices")}
             </button>
           )}
-          {/* Tracking / Check-in / Registros son operativos del CLIENTE. El admin
-              gestiona (clientes, unidades, GPS, cámaras, usuarios), no opera. */}
-          {!isAdmin && (
+          {/* Tracking / Check-in / Registros: solo clientes CON motos/GPS. El
+              admin gestiona (no opera); un cliente sin motos (ej. restaurante)
+              no ve nada de esto. */}
+          {clientHasMotos && (
             <>
               <button className={`app__nav-btn ${view === "tracking" ? "app__nav-btn--active" : ""}`} onClick={() => setView("tracking")}>
                 {t("nav.tracking")}
@@ -148,24 +151,9 @@ export function App() {
         </nav>
         <div className="app__header-right">
           {view === "tracking" && (
-            <>
-              <button
-                className="app__nav-btn"
-                onClick={() => setSource((s) => (s === "demo" ? "live" : "demo"))}
-                title={t("header.sourceTitle")}
-              >
-                {source === "live" ? t("header.sourceReal") : t("header.sourceDemo")}
-              </button>
-              <span className={`app__status app__status--${status}`}>
-                {status === "open"
-                  ? source === "live"
-                    ? t("status.liveReal")
-                    : t("status.liveDemo")
-                  : status === "connecting"
-                    ? t("status.connecting")
-                    : t("status.disconnected")}
-              </span>
-            </>
+            <span className={`app__status app__status--${status}`}>
+              {status === "open" ? t("status.liveDemo") : status === "connecting" ? t("status.connecting") : t("status.disconnected")}
+            </span>
           )}
           <div className="app__client">
             <span className="app__client-name">{account.profile.businessName}</span>
