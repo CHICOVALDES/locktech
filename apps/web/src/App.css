@@ -644,6 +644,38 @@ body {
   color: var(--text-muted);
 }
 
+/* Cámaras reales del cliente en su área "Cámaras" */
+.camera-mine {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.camera-mine__item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.camera-mine__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+}
+.camera-mine__name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.camera-mine__badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #0d0d0d;
+  background: var(--status-good);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
 .devlist__title {
   margin: 0 0 0.85rem;
   font-size: 0.8rem;

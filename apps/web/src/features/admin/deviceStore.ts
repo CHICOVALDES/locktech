@@ -184,6 +184,11 @@ function uid(): string {
   return typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${Math.random()}`;
 }
 
+// Cámaras dadas de alta para un cliente (para mostrarlas en su área "Cámaras").
+export function loadCamerasForClient(clientUsername: string): Camera[] {
+  return load<Camera>(CAM_KEY).filter((c) => c.clientUsername === clientUsername);
+}
+
 export function useDevices() {
   const [gps, setGps] = useState<GpsDevice[]>(() => load<GpsDevice>(GPS_KEY));
   const [cameras, setCameras] = useState<Camera[]>(() => load<Camera>(CAM_KEY));

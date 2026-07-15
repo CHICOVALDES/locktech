@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { loadCamerasForClient } from "../admin/deviceStore.js";
+import { CameraPreview } from "../admin/CameraPreview.js";
 
 // Cámara REAL en vivo (demo): stream público de una webcam 24/7 en Bali
 // (costa Kuta/Seminyak/Canggu, canal @Bali_Weather en YouTube). Se embebe por
@@ -24,9 +26,15 @@ const CAMERA_CLIPS: CameraClip[] = [
   { title: "Templo", subtitle: "ene–ago", src: "/videos/temple.mp4" },
 ];
 
-export function CameraFeed() {
+export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
   const [now, setNow] = useState(new Date());
   const [motionAlert, setMotionAlert] = useState(false);
+
+  // Cámaras reales dadas de alta para este cliente por el admin (con preview).
+  const myCameras = useMemo(
+    () => (clientUsername ? loadCamerasForClient(clientUsername).filter((c) => c.previewUrl) : []),
+    [clientUsername],
+  );
 
   useEffect(() => {
     const clockInterval = setInterval(() => setNow(new Date()), 1000);
@@ -43,6 +51,21 @@ export function CameraFeed() {
   return (
     <div className="camera-panel">
       <h1 className="registros__title">Cámaras</h1>
+
+      {/* Cámaras reales del cliente (dadas de alta por el admin) */}
+      {myCameras.length > 0 && (
+        <div className="camera-mine">
+          {myCameras.map((cam) => (
+            <div className="camera-mine__item" key={cam.id}>
+              <div className="camera-mine__head">
+                <span className="camera-mine__name">📹 {cam.name}</span>
+                <span className="camera-mine__badge">EN VIVO</span>
+              </div>
+              <CameraPreview url={cam.previewUrl!} />
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="camera-feed">
         <div className="camera-feed__video">

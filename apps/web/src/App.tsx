@@ -228,7 +228,7 @@ export function App() {
 
       {view === "camaras" && (
         <main className="app__body app__body--single">
-          <CameraFeed />
+          <CameraFeed clientUsername={account.username} />
         </main>
       )}
 
