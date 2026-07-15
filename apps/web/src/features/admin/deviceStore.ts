@@ -189,6 +189,11 @@ export function loadCamerasForClient(clientUsername: string): Camera[] {
   return load<Camera>(CAM_KEY).filter((c) => c.clientUsername === clientUsername);
 }
 
+// Equipos GPS dados de alta para un cliente (los que el admin le asignó).
+export function loadGpsForClient(clientUsername: string): GpsDevice[] {
+  return load<GpsDevice>(GPS_KEY).filter((d) => d.clientUsername === clientUsername);
+}
+
 export function useDevices() {
   const [gps, setGps] = useState<GpsDevice[]>(() => load<GpsDevice>(GPS_KEY));
   const [cameras, setCameras] = useState<Camera[]>(() => load<Camera>(CAM_KEY));

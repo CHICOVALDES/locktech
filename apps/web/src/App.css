@@ -285,6 +285,117 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Vista de clientes (admin) — cada cliente con sus activos */
+.clients {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+.clients__list {
+  display: grid;
+  gap: 1.1rem;
+}
+.client-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+}
+.client-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.85rem;
+  border-bottom: 1px solid var(--gridline);
+}
+.client-card__name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.client-card__meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.client-card__kinds {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.client-card__kind {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+}
+.client-card__kind--empty {
+  color: var(--text-muted);
+}
+.client-card__group {
+  margin-top: 0.7rem;
+}
+.client-card__group-title {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+}
+.client-card__motos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.client-moto {
+  --accent: var(--racing-accent);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+  background: #141414;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text-primary);
+}
+.client-moto:hover {
+  border-color: var(--accent);
+}
+.client-moto__id {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.client-moto__status {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.client-moto__status--live {
+  color: var(--status-good);
+}
+.client-card__obras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.client-obra {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 8px;
+  padding: 0.35rem 0.7rem;
+}
+
 /* Gestión de dispositivos (admin) */
 
 .devmgr {

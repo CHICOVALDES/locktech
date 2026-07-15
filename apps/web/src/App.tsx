@@ -13,6 +13,7 @@ import { useAuth } from "./features/auth/useAuth.js";
 import { LoginScreen } from "./features/auth/LoginScreen.js";
 import { LandingPage } from "./features/landing/LandingPage.js";
 import { AdminFleet } from "./features/admin/AdminFleet.js";
+import { ClientsOverview } from "./features/admin/ClientsOverview.js";
 import { DeviceManager } from "./features/admin/DeviceManager.js";
 import { UserManager } from "./features/admin/UserManager.js";
 import { BtLogo } from "./components/BtLogo.js";
@@ -110,15 +111,21 @@ export function App() {
               {t("nav.devices")}
             </button>
           )}
-          <button className={`app__nav-btn ${view === "tracking" ? "app__nav-btn--active" : ""}`} onClick={() => setView("tracking")}>
-            {t("nav.tracking")}
-          </button>
-          <button className={`app__nav-btn ${view === "checkin" ? "app__nav-btn--active" : ""}`} onClick={() => setView("checkin")}>
-            {t("nav.checkin")}
-          </button>
-          <button className={`app__nav-btn ${view === "registros" ? "app__nav-btn--active" : ""}`} onClick={() => setView("registros")}>
-            {t("nav.records")}
-          </button>
+          {/* Tracking / Check-in / Registros son operativos del CLIENTE. El admin
+              gestiona (clientes, unidades, GPS, cámaras, usuarios), no opera. */}
+          {!isAdmin && (
+            <>
+              <button className={`app__nav-btn ${view === "tracking" ? "app__nav-btn--active" : ""}`} onClick={() => setView("tracking")}>
+                {t("nav.tracking")}
+              </button>
+              <button className={`app__nav-btn ${view === "checkin" ? "app__nav-btn--active" : ""}`} onClick={() => setView("checkin")}>
+                {t("nav.checkin")}
+              </button>
+              <button className={`app__nav-btn ${view === "registros" ? "app__nav-btn--active" : ""}`} onClick={() => setView("registros")}>
+                {t("nav.records")}
+              </button>
+            </>
+          )}
           {/* Herramientas de monitoreo — al seleccionar la casa, o siempre para
               clientes sin motos (restaurante La Parada). */}
           {showHouseTools && (
@@ -175,7 +182,7 @@ export function App() {
 
       {view === "flota" && isAdmin && (
         <main className="app__body app__body--single">
-          <AdminFleet
+          <ClientsOverview
             vehicles={myVehicles}
             onOpenVehicle={(vehicleId) => {
               selectVehicle(vehicleId);
