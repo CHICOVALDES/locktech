@@ -38,10 +38,12 @@ export function App() {
 
   const isAdmin = account?.role === "admin";
 
-  // Al iniciar sesión, el admin aterriza en la vista de flota; los clientes, en tracking.
+  // Al iniciar sesión: admin → flota; cliente con motos → tracking; cliente sin
+  // dispositivos (ej. restaurante La Parada, solo monitoreo) → directo a Cámaras.
   useEffect(() => {
     if (!account) return;
-    setView(account.role === "admin" ? "flota" : "tracking");
+    if (account.role === "admin") setView("flota");
+    else setView(account.devices.length === 0 ? "camaras" : "tracking");
   }, [account]);
 
   // Landing de presentación antes del login (solo si no hay sesión activa).
@@ -62,6 +64,11 @@ export function App() {
   const activeVehicleId = selectedVehicleId ?? myVehicles[0]?.position.vehicleId ?? null;
   const activeCustomization = (activeVehicleId && customizations[activeVehicleId]) || DEFAULT_CUSTOMIZATION;
   const activeAccentColor = LIVERY_PRESETS.find((p) => p.id === activeCustomization.liveryId)?.primary ?? "#c41e2a";
+
+  // Herramientas de monitoreo (BuildTrack / Cámaras / Recovery): visibles al
+  // seleccionar la casa en Tracking, o siempre para clientes sin motos (ej. el
+  // restaurante La Parada, que es solo monitoreo por cámara).
+  const showHouseTools = cameraTarget === "home" || (!isAdmin && account.devices.length === 0);
 
   function updateCustomization(next: VehicleCustomization) {
     if (!activeVehicleId) return;
@@ -112,9 +119,9 @@ export function App() {
           <button className={`app__nav-btn ${view === "registros" ? "app__nav-btn--active" : ""}`} onClick={() => setView("registros")}>
             {t("nav.records")}
           </button>
-          {/* Herramientas de "la Casa" — aparecen al seleccionar la casa en Tracking.
-              La casa es la puerta de entrada a BuildTrack (monitoreo de obras). */}
-          {cameraTarget === "home" && (
+          {/* Herramientas de monitoreo — al seleccionar la casa, o siempre para
+              clientes sin motos (restaurante La Parada). */}
+          {showHouseTools && (
             <>
               <span className="app__nav-divider" aria-hidden="true" />
               <button
