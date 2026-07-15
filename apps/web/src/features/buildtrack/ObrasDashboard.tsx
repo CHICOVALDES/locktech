@@ -5,12 +5,14 @@ import { daysRemaining, projectProgress, projectStatusLabel } from "./helpers.js
 import { ProjectDetail } from "./ProjectDetail.js";
 import { BuildTrackLogo } from "./BuildTrackLogo.js";
 import { ObrasMap } from "./ObrasMap.js";
+import { visibleProjects } from "./ownership.js";
 
 // Sección BuildTrack: dashboard multi-proyecto de obras (villas) + detalle.
-// Primer slice del PRD (docs/buildtrack-prd.md): listado con estado/avance/días
-// restantes y, al abrir una obra, su timeline de hitos.
-export function ObrasDashboard() {
-  const { projects, status } = useProjects();
+// Cada cliente ve SOLO sus obras (admin ve todas). Un usuario nuevo no ve
+// obras de otros proyectos hasta que se le asignen.
+export function ObrasDashboard({ clientUsername, isAdmin }: { clientUsername: string; isAdmin: boolean }) {
+  const { projects: allProjects, status } = useProjects();
+  const projects = visibleProjects(allProjects, clientUsername, isAdmin);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selected = projects.find((p) => p.id === selectedId) ?? null;

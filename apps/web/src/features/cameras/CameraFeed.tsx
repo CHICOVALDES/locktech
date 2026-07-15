@@ -53,6 +53,10 @@ export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
     return [...seeded, ...registered];
   }, [clientUsername]);
 
+  // Contenido demo (webcam pública de Bali + clips de obra) solo para la cuenta
+  // de demostración. Un usuario nuevo ve SOLO sus propias cámaras, nada ajeno.
+  const showDemoContent = clientUsername === "mrrental";
+
   useEffect(() => {
     const clockInterval = setInterval(() => setNow(new Date()), 1000);
     const motionInterval = setInterval(() => {
@@ -84,48 +88,56 @@ export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
         </div>
       )}
 
-      <div className="camera-feed">
-        <div className="camera-feed__video">
-          <iframe
-            className="camera-feed__stream"
-            src={BALI_CAM_SRC}
-            title="Cámara en vivo — Bali"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-          />
+      {/* Estado vacío para clientes sin cámaras (usuario nuevo, limpio) */}
+      {!showDemoContent && myCameras.length === 0 && (
+        <p className="camera-empty">Todavía no tenés cámaras conectadas. El administrador puede dar de alta tus cámaras y aparecerán acá en vivo.</p>
+      )}
 
-          {motionAlert && <span className="camera-feed__motion">⚠ MOVIMIENTO DETECTADO</span>}
+      {/* Contenido demo: solo para la cuenta de demostración */}
+      {showDemoContent && (
+        <>
+          <div className="camera-feed">
+            <div className="camera-feed__video">
+              <iframe
+                className="camera-feed__stream"
+                src={BALI_CAM_SRC}
+                title="Cámara en vivo — Bali"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+              />
 
-          <div className="camera-feed__overlay-top">
-            <span className="camera-feed__live">
-              <span className="camera-feed__live-dot" /> EN VIVO
-            </span>
-            <span className="camera-feed__time">
-              {now.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-            </span>
+              {motionAlert && <span className="camera-feed__motion">⚠ MOVIMIENTO DETECTADO</span>}
+
+              <div className="camera-feed__overlay-top">
+                <span className="camera-feed__live">
+                  <span className="camera-feed__live-dot" /> EN VIVO
+                </span>
+                <span className="camera-feed__time">
+                  {now.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                </span>
+              </div>
+
+              <div className="camera-feed__overlay-bottom">CAM-01 · BALI · EN VIVO</div>
+            </div>
+
+            <p className="camera-feed__note">
+              Cámara pública en vivo de Bali (costa Kuta/Seminyak/Canggu) — contenido de demostración.
+            </p>
           </div>
 
-          <div className="camera-feed__overlay-bottom">CAM-01 · BALI · EN VIVO</div>
-        </div>
-
-        <p className="camera-feed__note">
-          Cámara pública en vivo de Bali (costa Kuta/Seminyak/Canggu). Para conectar tu Hikvision real necesito: la
-          IP de la cámara en la red donde corra el servidor, usuario/contraseña (o el ID de Hik-Connect), y un
-          servicio que convierta el RTSP a HLS/WebRTC reproducible en el navegador.
-        </p>
-      </div>
-
-      <div className="camera-clips">
-        {CAMERA_CLIPS.map((clip) => (
-          <figure className="camera-clip" key={clip.src}>
-            <video className="camera-clip__video" src={clip.src} controls preload="metadata" playsInline />
-            <figcaption className="camera-clip__caption">
-              <span className="camera-clip__title">{clip.title}</span>
-              <span className="camera-clip__subtitle">{clip.subtitle}</span>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
+          <div className="camera-clips">
+            {CAMERA_CLIPS.map((clip) => (
+              <figure className="camera-clip" key={clip.src}>
+                <video className="camera-clip__video" src={clip.src} controls preload="metadata" playsInline />
+                <figcaption className="camera-clip__caption">
+                  <span className="camera-clip__title">{clip.title}</span>
+                  <span className="camera-clip__subtitle">{clip.subtitle}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

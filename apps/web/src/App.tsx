@@ -247,7 +247,7 @@ export function App() {
 
       {view === "obras" && (
         <main className="app__body app__body--single">
-          <ObrasDashboard />
+          <ObrasDashboard clientUsername={account.username} isAdmin={isAdmin} />
         </main>
       )}
     </div>

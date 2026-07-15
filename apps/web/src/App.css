@@ -675,6 +675,15 @@ body {
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
 }
+.camera-empty {
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
 
 .devlist__title {
   margin: 0 0 0.85rem;
