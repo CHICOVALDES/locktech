@@ -30,12 +30,12 @@ const CAMERA_CLIPS: CameraClip[] = [
 // go2rtc + túnel están activos (ver C:\Users\User\bt-camara\iniciar-camara.bat →
 // https://<tunel>.trycloudflare.com/api/stream.m3u8?src=oficina1). Vacío = aún no
 // conectada (no se muestra la tarjeta hasta tener URL).
-const LAPARADA_CAM_URL = "";
+const LAPARADA_CAM_URL = "https://throat-simply-mitsubishi-dos.trycloudflare.com/api/stream.m3u8?src=laparada";
 
 // Cámaras "baked" por cliente (no dependen del localStorage del admin), para que
 // el cliente SIEMPRE vea su cámara en su área "Cámaras".
 const SEED_CAMERAS: Record<string, { id: string; name: string; url: string }[]> = {
-  laparada: [{ id: "seed-parada-salon", name: "La Parada · Salón", url: LAPARADA_CAM_URL }],
+  laparada: [{ id: "seed-parada-jardin", name: "La Parada · Jardín", url: LAPARADA_CAM_URL }],
 };
 
 export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
