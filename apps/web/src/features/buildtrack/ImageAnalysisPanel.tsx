@@ -11,6 +11,9 @@ const DATE_FMT: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", y
 export function ImageAnalysisPanel({ analysis }: { analysis: ImageAnalysis }) {
   const frames = [...analysis.frames].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const [openFrame, setOpenFrame] = useState<AnalysisFrame | null>(null);
+  // Filtro por actividad/máquina: al tocar un chip se muestran solo las fotos
+  // donde se detectó eso (ej. "Movimiento de tierra" → las fotos de esa semana).
+  const [filter, setFilter] = useState<string | null>(null);
   if (frames.length === 0) return null;
 
   // Agregados
@@ -21,6 +24,12 @@ export function ImageAnalysisPanel({ analysis }: { analysis: ImageAnalysis }) {
   // Frecuencia de máquinas y actividades (para los chips agregados)
   const machineFreq = tally(frames.flatMap((f) => f.machines));
   const activityFreq = tally(frames.flatMap((f) => f.activities));
+
+  // Fotos a mostrar: todas, o solo las que contienen la actividad/máquina filtrada.
+  const shownFrames = filter
+    ? frames.filter((f) => [...f.machines, ...f.activities].some((x) => x.label === filter))
+    : frames;
+  const toggle = (label: string) => setFilter((cur) => (cur === label ? null : label));
 
   return (
     <section className="bt-an">
@@ -44,9 +53,14 @@ export function ImageAnalysisPanel({ analysis }: { analysis: ImageAnalysis }) {
           <div className="bt-an__chips">
             {machineFreq.length ? (
               machineFreq.map((m) => (
-                <span key={m.label} className="bt-an__chip bt-an__chip--machine">
+                <button
+                  key={m.label}
+                  className={`bt-an__chip bt-an__chip--machine bt-an__chip--btn ${filter === m.label ? "bt-an__chip--on" : ""}`}
+                  onClick={() => toggle(m.label)}
+                  title={`Ver fotos con: ${m.label}`}
+                >
                   {m.icon} {m.label} · {m.total}d
-                </span>
+                </button>
               ))
             ) : (
               <span className="bt-an__none">Sin máquinas en el período</span>
@@ -57,17 +71,34 @@ export function ImageAnalysisPanel({ analysis }: { analysis: ImageAnalysis }) {
           <span className="bt-an__agg-title">Actividades detectadas</span>
           <div className="bt-an__chips">
             {activityFreq.map((a) => (
-              <span key={a.label} className="bt-an__chip">
+              <button
+                key={a.label}
+                className={`bt-an__chip bt-an__chip--btn ${filter === a.label ? "bt-an__chip--on" : ""}`}
+                onClick={() => toggle(a.label)}
+                title={`Ver fotos con: ${a.label}`}
+              >
                 {a.icon} {a.label} · {a.total}d
-              </span>
+              </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Detalle por captura */}
+      {/* Barra de filtro activo */}
+      {filter && (
+        <div className="bt-an__filter">
+          <span>
+            Mostrando <b>{shownFrames.length}</b> foto{shownFrames.length !== 1 ? "s" : ""} con <b>{filter}</b>
+          </span>
+          <button className="bt-an__filter-clear" onClick={() => setFilter(null)}>
+            ✕ Quitar filtro
+          </button>
+        </div>
+      )}
+
+      {/* Detalle por captura (filtrado si hay actividad seleccionada) */}
       <div className="bt-an__frames">
-        {frames.map((f) => (
+        {shownFrames.map((f) => (
           <FrameCard key={f.imageUrl} frame={f} onOpen={() => setOpenFrame(f)} />
         ))}
       </div>
