@@ -33,6 +33,21 @@ const REGISTERED_KEY = "bmt.accounts";
 // Cuentas de fábrica (siempre disponibles).
 export const DEMO_ACCOUNTS: ClientAccount[] = [
   {
+    // La Parada Tanah Lot — restaurante del usuario. Monitoreo con cámara en vivo,
+    // time-lapse del día y análisis IA (personas / materiales / actividad).
+    username: "laparada",
+    password: "parada123",
+    role: "client",
+    profile: {
+      id: "la-parada",
+      businessName: "La Parada · Tanah Lot",
+      contactName: "Eduardo Valdez Vial",
+      phone: "+62 812 3675 4965",
+      plan: "Monitoreo AI",
+    },
+    devices: [],
+  },
+  {
     username: "mrrental",
     password: "bali123",
     role: "client",

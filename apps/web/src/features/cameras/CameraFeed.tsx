@@ -26,15 +26,32 @@ const CAMERA_CLIPS: CameraClip[] = [
   { title: "Templo", subtitle: "ene–ago", src: "/videos/temple.mp4" },
 ];
 
+// URL HLS en vivo de la cámara de La Parada (restaurante). Se completa cuando
+// go2rtc + túnel están activos (ver C:\Users\User\bt-camara\iniciar-camara.bat →
+// https://<tunel>.trycloudflare.com/api/stream.m3u8?src=oficina1). Vacío = aún no
+// conectada (no se muestra la tarjeta hasta tener URL).
+const LAPARADA_CAM_URL = "";
+
+// Cámaras "baked" por cliente (no dependen del localStorage del admin), para que
+// el cliente SIEMPRE vea su cámara en su área "Cámaras".
+const SEED_CAMERAS: Record<string, { id: string; name: string; url: string }[]> = {
+  laparada: [{ id: "seed-parada-salon", name: "La Parada · Salón", url: LAPARADA_CAM_URL }],
+};
+
 export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
   const [now, setNow] = useState(new Date());
   const [motionAlert, setMotionAlert] = useState(false);
 
-  // Cámaras reales dadas de alta para este cliente por el admin (con preview).
-  const myCameras = useMemo(
-    () => (clientUsername ? loadCamerasForClient(clientUsername).filter((c) => c.previewUrl) : []),
-    [clientUsername],
-  );
+  // Cámaras del cliente: las "baked" (seed) + las dadas de alta por el admin
+  // (localStorage). Solo las que tienen URL de preview.
+  const myCameras = useMemo(() => {
+    if (!clientUsername) return [] as { id: string; name: string; url: string }[];
+    const seeded = (SEED_CAMERAS[clientUsername] ?? []).filter((c) => c.url);
+    const registered = loadCamerasForClient(clientUsername)
+      .filter((c) => c.previewUrl)
+      .map((c) => ({ id: c.id, name: c.name, url: c.previewUrl! }));
+    return [...seeded, ...registered];
+  }, [clientUsername]);
 
   useEffect(() => {
     const clockInterval = setInterval(() => setNow(new Date()), 1000);
@@ -61,7 +78,7 @@ export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
                 <span className="camera-mine__name">📹 {cam.name}</span>
                 <span className="camera-mine__badge">EN VIVO</span>
               </div>
-              <CameraPreview url={cam.previewUrl!} />
+              <CameraPreview url={cam.url} />
             </div>
           ))}
         </div>
