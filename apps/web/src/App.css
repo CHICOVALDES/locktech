@@ -847,6 +847,53 @@ body {
   font-size: 0.9rem;
 }
 
+/* Luz de estado de cámara (verde/roja/ámbar) */
+.camera-light {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.camera-light__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.camera-light--on {
+  color: var(--status-good);
+  border-color: rgba(47, 191, 113, 0.5);
+}
+.camera-light--on .camera-light__dot {
+  background: var(--status-good);
+  box-shadow: 0 0 8px var(--status-good);
+  animation: cam-pulse 1.4s ease-in-out infinite;
+}
+.camera-light--off {
+  color: var(--status-critical);
+  border-color: rgba(226, 87, 76, 0.5);
+}
+.camera-light--off .camera-light__dot {
+  background: var(--status-critical);
+}
+.camera-light--wait {
+  color: var(--racing-accent);
+  border-color: rgba(255, 193, 7, 0.5);
+}
+.camera-light--wait .camera-light__dot {
+  background: var(--racing-accent);
+  animation: cam-pulse 0.9s ease-in-out infinite;
+}
+@keyframes cam-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
 .devlist__title {
   margin: 0 0 0.85rem;
   font-size: 0.8rem;

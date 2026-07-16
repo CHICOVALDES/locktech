@@ -38,6 +38,25 @@ const SEED_CAMERAS: Record<string, { id: string; name: string; url: string }[]> 
   laparada: [{ id: "seed-parada-jardin", name: "La Parada · Jardín", url: LAPARADA_CAM_URL }],
 };
 
+// Tarjeta de cámara del cliente con LUZ verde/roja según el estado real de la
+// conexión: verde = imagen recibida, rojo = sin señal, ámbar = conectando.
+function ClientCameraCard({ name, url }: { name: string; url: string }) {
+  const [ok, setOk] = useState<boolean | null>(null);
+  const state = ok === null ? "wait" : ok ? "on" : "off";
+  return (
+    <div className="camera-mine__item">
+      <div className="camera-mine__head">
+        <span className="camera-mine__name">📹 {name}</span>
+        <span className={`camera-light camera-light--${state}`}>
+          <span className="camera-light__dot" />
+          {ok === null ? "CONECTANDO…" : ok ? "EN VIVO" : "SIN SEÑAL"}
+        </span>
+      </div>
+      <CameraPreview url={url} onStatus={setOk} />
+    </div>
+  );
+}
+
 export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
   const [now, setNow] = useState(new Date());
   const [motionAlert, setMotionAlert] = useState(false);
@@ -77,13 +96,7 @@ export function CameraFeed({ clientUsername }: { clientUsername?: string }) {
       {myCameras.length > 0 && (
         <div className="camera-mine">
           {myCameras.map((cam) => (
-            <div className="camera-mine__item" key={cam.id}>
-              <div className="camera-mine__head">
-                <span className="camera-mine__name">📹 {cam.name}</span>
-                <span className="camera-mine__badge">EN VIVO</span>
-              </div>
-              <CameraPreview url={cam.url} />
-            </div>
+            <ClientCameraCard key={cam.id} name={cam.name} url={cam.url} />
           ))}
         </div>
       )}
