@@ -86,7 +86,7 @@ export function DeviceManager() {
 
 /* ---------- Alta de GPS ---------- */
 
-function GpsForm({
+export function GpsForm({
   clients,
   onAdd,
 }: {
@@ -180,7 +180,7 @@ function GpsForm({
 
 /* ---------- Alta de cámara ---------- */
 
-function CameraForm({
+export function CameraForm({
   clients,
   onAdd,
 }: {
@@ -399,7 +399,7 @@ function CameraList({
 
 /* ---------- Alta de NVR ---------- */
 
-function NvrForm({
+export function NvrForm({
   clients,
   onAdd,
 }: {

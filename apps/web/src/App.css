@@ -337,6 +337,20 @@ body {
 .client-card__kind--empty {
   color: var(--text-muted);
 }
+.client-card__manage {
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #111111;
+  background: var(--racing-accent);
+  border: none;
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem;
+  cursor: pointer;
+}
+.client-card__manage:hover {
+  filter: brightness(1.08);
+}
 .client-card__group {
   margin-top: 0.7rem;
 }

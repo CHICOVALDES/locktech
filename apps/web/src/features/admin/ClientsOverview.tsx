@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { VehicleState } from "../../hooks/useDemoPositions.js";
-import { clientAccounts } from "../auth/accounts.js";
+import { clientAccounts, type ClientAccount } from "../auth/accounts.js";
+import { ClientDetail } from "./ClientDetail.js";
 import { useProjects } from "../buildtrack/useProjects.js";
 import { PROJECT_OWNERS } from "../buildtrack/ownership.js";
 import { loadCamerasForClient, loadGpsForClient } from "./deviceStore.js";
@@ -18,6 +19,12 @@ export function ClientsOverview({
 }) {
   const clients = useMemo(() => clientAccounts(), []);
   const { projects } = useProjects();
+  const [selected, setSelected] = useState<ClientAccount | null>(null);
+
+  // Detalle del cliente: alta de sus GPS/NVR/cámaras scopeada.
+  if (selected) {
+    return <ClientDetail client={selected} onBack={() => setSelected(null)} />;
+  }
 
   return (
     <div className="clients">
@@ -61,6 +68,9 @@ export function ClientsOverview({
                   </div>
                   <div className="client-card__kinds">
                     {kinds.length ? kinds.map((k) => <span key={k} className="client-card__kind">{k}</span>) : <span className="client-card__kind client-card__kind--empty">Sin activos</span>}
+                    <button className="client-card__manage" onClick={() => setSelected(c)}>
+                      ⚙ Gestionar equipos →
+                    </button>
                   </div>
                 </div>
 
