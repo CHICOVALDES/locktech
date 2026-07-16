@@ -223,5 +223,21 @@ export function useDevices() {
     setNvrs((prev) => save(NVR_KEY, prev.filter((n) => n.id !== id)));
   }, []);
 
-  return { gps, cameras, nvrs, addGps, removeGps, addCamera, removeCamera, addNvr, removeNvr };
+  // Edición de equipos ya creados (aplica los campos cambiados por id).
+  const updateGps = useCallback((id: string, patch: Partial<GpsDevice>) => {
+    setGps((prev) => save(GPS_KEY, prev.map((d) => (d.id === id ? { ...d, ...patch } : d))));
+  }, []);
+  const updateCamera = useCallback((id: string, patch: Partial<Camera>) => {
+    setCameras((prev) => save(CAM_KEY, prev.map((c) => (c.id === id ? { ...c, ...patch } : c))));
+  }, []);
+  const updateNvr = useCallback((id: string, patch: Partial<Nvr>) => {
+    setNvrs((prev) => save(NVR_KEY, prev.map((n) => (n.id === id ? { ...n, ...patch } : n))));
+  }, []);
+
+  return {
+    gps, cameras, nvrs,
+    addGps, removeGps, updateGps,
+    addCamera, removeCamera, updateCamera,
+    addNvr, removeNvr, updateNvr,
+  };
 }

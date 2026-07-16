@@ -351,6 +351,43 @@ body {
 .client-card__manage:hover {
   filter: brightness(1.08);
 }
+
+/* Edición inline de un equipo + test de conexión (detalle del cliente) */
+.devrow-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  background: #141414;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.devconn__btn {
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #111111;
+  background: var(--racing-accent);
+  border: none;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  margin-top: 0.4rem;
+  align-self: flex-start;
+}
+.devconn {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.devconn--loading {
+  color: var(--racing-accent);
+}
+.devconn--ok {
+  color: var(--status-good);
+}
 .client-card__group {
   margin-top: 0.7rem;
 }
