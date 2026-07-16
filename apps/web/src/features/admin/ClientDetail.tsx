@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ClientAccount } from "../auth/accounts.js";
 import {
   useDevices,
+  buildNvrChannelRtsp,
   ASSET_TYPES,
   TRACKER_PROTOCOLS,
   CAMERA_TYPES,
@@ -80,7 +81,7 @@ export function ClientDetail({ client, onBack }: { client: ClientAccount; onBack
             ) : (
               <ul className="devlist__items">
                 {myNvrs.map((n) => (
-                  <NvrRow key={n.id} n={n} onUpdate={dev.updateNvr} onRemove={dev.removeNvr} />
+                  <NvrRow key={n.id} n={n} onUpdate={dev.updateNvr} onRemove={dev.removeNvr} onAddCamera={dev.addCamera} clientUsername={client.username} />
                 ))}
               </ul>
             )}
@@ -158,9 +159,22 @@ function GpsRow({ d, onUpdate, onRemove }: { d: GpsDevice; onUpdate: (id: string
   );
 }
 
-/* ---------- Fila de NVR: info + editar ---------- */
-function NvrRow({ n, onUpdate, onRemove }: { n: Nvr; onUpdate: (id: string, p: Partial<Nvr>) => void; onRemove: (id: string) => void }) {
+/* ---------- Fila de NVR: info + editar IP + ver cámaras de su red ---------- */
+function NvrRow({
+  n,
+  onUpdate,
+  onRemove,
+  onAddCamera,
+  clientUsername,
+}: {
+  n: Nvr;
+  onUpdate: (id: string, p: Partial<Nvr>) => void;
+  onRemove: (id: string) => void;
+  onAddCamera: (c: Omit<Camera, "id" | "createdAt">) => void;
+  clientUsername: string;
+}) {
   const [edit, setEdit] = useState(false);
+  const [showChannels, setShowChannels] = useState(false);
   const [name, setName] = useState(n.name);
   const [host, setHost] = useState(n.host);
   const [port, setPort] = useState(n.port);
@@ -173,6 +187,23 @@ function NvrRow({ n, onUpdate, onRemove }: { n: Nvr; onUpdate: (id: string, p: P
     setEdit(false);
   }
 
+  function addChannelAsCamera(ch: number) {
+    const rtspUrl = buildNvrChannelRtsp({ brand: n.brand, host: n.host, port: n.port, username: n.username, password: n.password, channel: ch, stream: "main" });
+    onAddCamera({
+      name: `${n.name} · Canal ${ch}`,
+      type: "rtsp",
+      host: n.host,
+      port: n.port,
+      username: n.username,
+      password: n.password,
+      channel: ch,
+      stream: "main",
+      path: rtspUrl.replace(/^rtsp:\/\/[^/]+\//, ""),
+      rtspUrl,
+      clientUsername,
+    });
+  }
+
   return (
     <li className="devlist__item">
       <div className="devlist__item-main">
@@ -182,13 +213,34 @@ function NvrRow({ n, onUpdate, onRemove }: { n: Nvr; onUpdate: (id: string, p: P
       {!edit ? (
         <>
           <span className="devlist__item-line">
-            {n.host}:{n.port} · {n.channels} canales
+            📡 {n.host}:{n.port} · {n.channels} canales
           </span>
           <ConnectTest kind="nvr" />
           <div className="devlist__item-actions">
-            <button className="devlist__action" onClick={() => setEdit(true)}>✎ Editar</button>
+            <button className="devlist__action" onClick={() => setShowChannels((s) => !s)}>
+              {showChannels ? "Ocultar cámaras" : `📷 Ver cámaras de la red (${n.channels})`}
+            </button>
+            <button className="devlist__action" onClick={() => setEdit(true)}>✎ Editar IP / accesos</button>
             <button className="devlist__action devlist__action--danger" onClick={() => onRemove(n.id)}>✕ Eliminar</button>
           </div>
+
+          {/* Cámaras que cuelgan del NVR (su red): cada canal con su RTSP */}
+          {showChannels && (
+            <ul className="devlist__items nvr-channels">
+              {Array.from({ length: n.channels }, (_, i) => i + 1).map((ch) => {
+                const url = buildNvrChannelRtsp({ brand: n.brand, host: n.host, port: n.port, username: n.username, password: n.password, channel: ch, stream: "main" });
+                return (
+                  <li key={ch} className="devlist__item">
+                    <div className="devlist__item-main">
+                      <span className="devlist__item-name">Canal {ch}</span>
+                      <button className="devlist__action" onClick={() => addChannelAsCamera(ch)}>+ Agregar cámara</button>
+                    </div>
+                    <code className="devform__preview-url">{url.replace(/:[^:@/]*@/, ":••••@")}</code>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </>
       ) : (
         <div className="devrow-edit">
